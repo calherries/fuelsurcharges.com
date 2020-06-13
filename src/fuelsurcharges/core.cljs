@@ -22,19 +22,19 @@
 
 (defn navbar []
   (r/with-let [expanded? (r/atom false)]
-              [:nav.navbar.is-info>div.container
-               [:div.navbar-brand
-                [:a.navbar-item {:href "/" :style {:font-weight :bold}} "fuelsurcharges"]
-                [:span.navbar-burger.burger
-                 {:data-target :nav-menu
-                  :on-click #(swap! expanded? not)
-                  :class (when @expanded? :is-active)}
-                 [:span][:span][:span]]]
-               [:div#nav-menu.navbar-menu
-                {:class (when @expanded? :is-active)}
-                [:div.navbar-start
-                 [nav-link "#/" "Home" :home]
-                 [nav-link "#/about" "About" :about]]]]))
+    [:nav.navbar.is-info>div.container
+     [:div.navbar-brand
+      [:a.navbar-item {:href "/" :style {:font-weight :bold}} "fuelsurcharges"]
+      [:span.navbar-burger.burger
+       {:data-target :nav-menu
+        :on-click    #(swap! expanded? not)
+        :class       (when @expanded? :is-active)}
+       [:span][:span][:span]]]
+     [:div#nav-menu.navbar-menu
+      {:class (when @expanded? :is-active)}
+      [:div.navbar-start
+       [nav-link "#/" "Home" :home]
+       [nav-link "#/about" "About" :about]]]]))
 
 (defn about-page []
   [:section.section>div.container>div.content
@@ -52,7 +52,7 @@
      [page]]))
 
 (defn navigate! [match _]
-  (rf/dis 'patch [:common/navigate match]))
+  (rf/dispatch [:common/navigate match]))
 
 (def router
   (reitit/router

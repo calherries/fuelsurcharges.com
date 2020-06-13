@@ -48,8 +48,8 @@
 
   :min-lein-version "2.0.0"
 
-  :source-paths ["src/clj" "src/cljs" "src/cljc"]
-  :test-paths ["test/clj"]
+  :source-paths ["src"]
+  :test-paths ["test"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"
   :main ^:skip-aot fuelsurcharges.core
@@ -70,7 +70,7 @@
 
              :aot            :all
              :uberjar-name   "fuelsurcharges.jar"
-             :source-paths   ["env/prod/clj"  "env/prod/cljs" ]
+             :source-paths   ["env/prod"  "env/prod" ]
              :resource-paths ["env/prod/resources"]}
 
    :dev  [:project/dev :profiles/dev]
@@ -89,7 +89,7 @@
                                 [jonase/eastwood "0.3.5"]]
 
 
-                 :source-paths   ["env/dev/clj"  "env/dev/cljs" "test/cljs" ]
+                 :source-paths   ["env/dev"  "env/dev" "test" ]
                  :resource-paths ["env/dev/resources"]
                  :repl-options   {:init-ns user
                                   :timeout 120000}
