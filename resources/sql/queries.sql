@@ -1,21 +1,29 @@
--- :name create-user! :! :n
--- :doc creates a new user record
-INSERT INTO users
-(id, first_name, last_name, email, pass)
-VALUES (:id, :first_name, :last_name, :email, :pass)
+-- :name create-market! :! :n
+-- :doc creates a new market record
+INSERT INTO dim_market
+(market_name, source_name)
+VALUES (:market-name, :source-name)
 
--- :name update-user! :! :n
--- :doc updates an existing user record
-UPDATE users
-SET first_name = :first_name, last_name = :last_name, email = :email
-WHERE id = :id
+-- :name delete-market! :! :n
+-- :doc deletes a market record given the market_name
+DELETE FROM dim_market
+WHERE market_name = :market-name
 
--- :name get-user :? :1
--- :doc retrieves a user record given the id
-SELECT * FROM users
-WHERE id = :id
+-- :name get-markets :? :*
+-- :doc selects all markets
+SELECT * from dim_market
 
--- :name delete-user! :! :n
--- :doc deletes a user record given the id
-DELETE FROM users
-WHERE id = :id
+-- :name insert-market-prices! :! :n
+-- :doc creates new market prices record
+INSERT INTO market_prices
+(market_id, price_date, price, currency)
+VALUES :tuple*:market-prices
+
+-- :name delete-market-prices! :! :n
+-- :doc deletes a market record given the market_id
+DELETE FROM market_prices
+WHERE market_id = :market-id
+
+-- :name get-market-prices :? :*
+-- :doc selects all market_prices
+SELECT * from market_prices

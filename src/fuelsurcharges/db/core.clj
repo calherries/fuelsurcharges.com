@@ -1,14 +1,21 @@
 (ns fuelsurcharges.db.core
   (:require
-    [cheshire.core :refer [generate-string parse-string]]
-    [next.jdbc.date-time]
-    [next.jdbc.prepare]
-    [next.jdbc.result-set]
-    [clojure.tools.logging :as log]
-    [conman.core :as conman]
-    [fuelsurcharges.config :refer [env]]
-    [mount.core :refer [defstate]])
-  (:import (org.postgresql.util PGobject)))
+   [cheshire.core :refer [generate-string parse-string]]
+   [next.jdbc.date-time]
+   [next.jdbc.prepare]
+   [next.jdbc.result-set]
+   [clojure.tools.logging :as log]
+   [conman.core :as conman]
+   [fuelsurcharges.config :refer [env]]
+   [mount.core :refer [defstate]]
+   [camel-snake-kebab.core :as csk]
+   [camel-snake-kebab.extras :as cske]
+   [clojure.walk :as walk]
+   [hugsql.adapter :as hsqla]
+   [hugsql.core :as hsqlc])
+
+  (:import [org.postgresql.util PGobject]
+           [java.time LocalDate]))
 
 (defstate ^:dynamic *db*
   :start (if-let [jdbc-url (env :database-url)]
@@ -74,3 +81,30 @@
                            (apply str (rest type-name)))]
         (.setObject stmt idx (.createArrayOf conn elem-type (to-array v)))
         (.setObject stmt idx (clj->jsonb-pgobj v))))))
+
+(defn kebab-case-keys
+  "Converts all the keys in the given map to kebab-case"
+  [m]
+  (cske/transform-keys csk/->kebab-case-keyword m))
+
+(defn result-one-format
+  [this result options]
+  (->> (hsqla/result-one this result options)
+       kebab-case-keys))
+
+(defn result-many-format
+  [this result options]
+  (->> (hsqla/result-many this result options)
+       (map kebab-case-keys)))
+
+(defmethod hsqlc/hugsql-result-fn :1 [_sym] 'fuelsurcharges.db.core/result-one-format)
+(defmethod hsqlc/hugsql-result-fn :one [_sym] 'fuelsurcharges.db.core/result-one-format)
+(defmethod hsqlc/hugsql-result-fn :* [_sym] 'fuelsurcharges.db.core/result-many-format)
+(defmethod hsqlc/hugsql-result-fn :many [_sym] 'fuelsurcharges.db.core/result-many-format)
+
+(comment (get-markets))
+(comment (create-market! {:market-name "Automotive Gas Oil with Taxes (EU), European Commission Oil Bulletin"
+                          :source-name "The European Commission's Weekly Oil Bulletin"}))
+(comment (get-market-prices))
+(comment (insert-market-prices! {:market-prices
+                                 [[1 (LocalDate/now) 1.091 "EUR"]]}))

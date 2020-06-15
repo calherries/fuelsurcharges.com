@@ -1,22 +1,24 @@
 (ns fuelsurcharges.routes.services
   (:require
-    [reitit.swagger :as swagger]
-    [reitit.swagger-ui :as swagger-ui]
-    [reitit.ring.coercion :as coercion]
-    [reitit.coercion.spec :as spec-coercion]
-    [reitit.ring.middleware.muuntaja :as muuntaja]
-    [reitit.ring.middleware.multipart :as multipart]
-    [reitit.ring.middleware.parameters :as parameters]
-    [fuelsurcharges.middleware.formats :as formats]
-    [fuelsurcharges.middleware.exception :as exception]
-    [ring.util.http-response :refer :all]
-    [clojure.java.io :as io]))
+   [reitit.swagger :as swagger]
+   [reitit.swagger-ui :as swagger-ui]
+   [reitit.ring.coercion :as coercion]
+   [reitit.coercion.spec :as spec-coercion]
+   [reitit.ring.middleware.muuntaja :as muuntaja]
+   [reitit.ring.middleware.multipart :as multipart]
+   [reitit.ring.middleware.parameters :as parameters]
+   [fuelsurcharges.middleware.formats :as formats]
+   [fuelsurcharges.middleware.exception :as exception]
+   [fuelsurcharges.markets :as markets]
+   [ring.util.http-response :refer :all]
+   [fuelsurcharges.db.core :as db]
+   [clojure.java.io :as io]))
 
 (defn service-routes []
   ["/api"
-   {:coercion spec-coercion/coercion
-    :muuntaja formats/instance
-    :swagger {:id ::api}
+   {:coercion   spec-coercion/coercion
+    :muuntaja   formats/instance
+    :swagger    {:id ::api}
     :middleware [;; query-params & form-params
                  parameters/parameters-middleware
                  ;; content-negotiation
@@ -35,8 +37,8 @@
                  multipart/multipart-middleware]}
 
    ;; swagger documentation
-   ["" {:no-doc true
-        :swagger {:info {:title "my-api"
+   ["" {:no-doc  true
+        :swagger {:info {:title       "my-api"
                          :description "https://cljdoc.org/d/metosin/reitit"}}}
 
     ["/swagger.json"
@@ -44,48 +46,49 @@
 
     ["/api-docs/*"
      {:get (swagger-ui/create-swagger-ui-handler
-             {:url "/api/swagger.json"
+             {:url    "/api/swagger.json"
               :config {:validator-url nil}})}]]
 
    ["/ping"
     {:get (constantly (ok {:message "pong"}))}]
-   
 
-   ["/math"
-    {:swagger {:tags ["math"]}}
-
-    ["/plus"
-     {:get {:summary "plus with spec query parameters"
-            :parameters {:query {:x int?, :y int?}}
-            :responses {200 {:body {:total pos-int?}}}
-            :handler (fn [{{{:keys [x y]} :query} :parameters}]
-                       {:status 200
-                        :body {:total (+ x y)}})}
-      :post {:summary "plus with spec body parameters"
-             :parameters {:body {:x int?, :y int?}}
-             :responses {200 {:body {:total pos-int?}}}
-             :handler (fn [{{{:keys [x y]} :body} :parameters}]
-                        {:status 200
-                         :body {:total (+ x y)}})}}]]
+   ["/markets"
+    {:get
+     (fn [_]
+       (ok {:markets (db/get-markets)}))}]
+   ;; {:get
+   ;;  {:responses
+   ;;   {200 {:body
+   ;;         {:messages
+   ;;          [{:id        pos-int? ;;            :name      string?
+   ;;            :message   string?
+   ;;            :timestamp inst?}]}}}
+   ;;   :handler
+   ;;   (fn [_]
+   ;;     (ok (msg/message-list)))}}]
+   ["/market-prices"
+    {:get
+     (fn [_]
+       (ok (markets/market-prices-list)))}]
 
    ["/files"
     {:swagger {:tags ["files"]}}
 
     ["/upload"
-     {:post {:summary "upload a file"
+     {:post {:summary    "upload a file"
              :parameters {:multipart {:file multipart/temp-file-part}}
-             :responses {200 {:body {:name string?, :size int?}}}
-             :handler (fn [{{{:keys [file]} :multipart} :parameters}]
-                        {:status 200
-                         :body {:name (:filename file)
-                                :size (:size file)}})}}]
+             :responses  {200 {:body {:name string?, :size int?}}}
+             :handler    (fn [{{{:keys [file]} :multipart} :parameters}]
+                           {:status 200
+                            :body   {:name (:filename file)
+                                     :size (:size file)}})}}]
 
     ["/download"
      {:get {:summary "downloads a file"
             :swagger {:produces ["image/png"]}
             :handler (fn [_]
-                       {:status 200
+                       {:status  200
                         :headers {"Content-Type" "image/png"}
-                        :body (-> "public/img/warning_clojure.png"
-                                  (io/resource)
-                                  (io/input-stream))})}}]]])
+                        :body    (-> "public/img/warning_clojure.png"
+                                     (io/resource)
+                                     (io/input-stream))})}}]]])
