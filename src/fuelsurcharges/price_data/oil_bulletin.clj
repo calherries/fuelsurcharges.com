@@ -60,6 +60,8 @@
 
 (def raw-rows (get-rows-from-sheet prices-sheet))
 
+(take 10 raw-rows)
+
 (def rows (->> raw-rows
                (drop 5) ;; drop the first 5 rows
                (filter not-empty) ;; drop empty rows
@@ -82,7 +84,7 @@
                                            read-string)}))
        (sort-by :date)))
 
-(comment (take-last 5 oil-price-data))
+(comment (take 5 oil-price-data))
 
 ;; convert rows into form needed by database
 (defn market-prices-insert [prices]
@@ -90,6 +92,7 @@
     [1 (jt/local-date date) price "EUR"]))
 
 (comment (db/get-markets))
+(comment (db/delete-market-prices! {:market-id 1}))
 (comment (db/insert-market-prices! {:market-prices (market-prices-insert oil-price-data)}))
 (comment (db/get-market-prices))
 ;; OZ
@@ -98,7 +101,7 @@
 (def line-plot
   {:title    "Price of automotive gas oil, 1000L"
    :data     {:values oil-price-data}
-   :encoding {:x {:field "date" :type "ordinal"}
+   :encoding {:x {:field "date" :type "temporal"}
               :y {:field "price" :type "quantitative"}}
    :mark     "line"
    :width    800})

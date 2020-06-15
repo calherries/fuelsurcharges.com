@@ -19,7 +19,7 @@
 (defn line-plot [data]
   {:title    "Price of automotive gas oil, 1000L"
    :data     {:values data}
-   :encoding {:x {:field "price-date" :type "ordinal"}
+   :encoding {:x {:field "price-date" :type "temporal"}
               :y {:field "price" :type "quantitative"}}
    :mark     "line"
    :width    800})
