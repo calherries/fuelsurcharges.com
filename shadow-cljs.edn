@@ -2,7 +2,7 @@
  :builds {:app  {:target     :browser
                  :output-dir "target/cljsbuild/public/js"
                  :asset-path "/js"
-                 :modules    {:app {:entries [fuelsurcharges.app]}}
+                 :modules    {:app {:entries [fuelsurcharges.core]}}
                  :devtools   {:watch-dir "resources/public"
                               :preloads  [devtools.preload
                                           day8.re-frame-10x.preload
