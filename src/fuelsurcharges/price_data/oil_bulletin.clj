@@ -7,7 +7,7 @@
             [fuelsurcharges.db.core :as db]
             [dk.ative.docjure.spreadsheet :as ss]))
 
-(comment
+(defn download-oil-bulletin []
   (clojure.java.io/copy
     (:body (http-client/get "http://ec.europa.eu/energy/observatory/reports/Oil_Bulletin_Prices_History.xlsx" {:as :stream}))
     (java.io.File. "downloads/Oil_Bulletin_Prices_History.xlsx")))
@@ -15,7 +15,7 @@
 (defn inst->local-date [inst]
   (t/local-date inst (t/zone-id "UTC")))
 
-(def price-data
+(defn price-data []
   (->> (ss/load-workbook "downloads/Oil_Bulletin_Prices_History.xlsx")
        (ss/select-sheet  "Prices with taxes, EU")
        (ss/select-columns {:B :date, :D :price})
@@ -40,13 +40,13 @@
 ;; OZ
 (comment (oz/start-server!))
 
-(def line-plot
-  {:title    "Price of automotive gas oil, 1000L"
-   :mark     "line"
-   :data     {:values price-data}
-   :encoding {:x {:field "date" :type "temporal"}
-              :y {:field "price" :type "quantitative"}}
-   :width    800})
+(comment (def line-plot
+           {:title    "Price of automotive gas oil, 1000L"
+            :mark     "line"
+            :data     {:values ( price-data)}
+            :encoding {:x {:field "date" :type "temporal"}
+                       :y {:field "price" :type "quantitative"}}
+            :width    800}))
 
 ;; Render the plot
 (comment (oz/view! line-plot))
