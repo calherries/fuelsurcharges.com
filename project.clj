@@ -74,7 +74,7 @@
 
   :profiles
   {:uberjar {:omit-source    true
-             :prep-tasks     ["compile" ["shadow" "release" "app"]]
+             :prep-tasks     ["compile" ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]
              :aot            :all
              :uberjar-name   "fuelsurcharges.jar"
              :source-paths   ["env/prod"  "env/prod" ]
@@ -102,10 +102,8 @@
                                   :timeout 120000}
                  :injections     [(require 'pjstadig.humane-test-output)
                                   (pjstadig.humane-test-output/activate!)]}
-   :project/test {:jvm-opts       ["-Dconf=test-config.edn" ]
-                  :resource-paths ["env/test/resources"]
-
-
-                  }
+   :project/test  {:jvm-opts       ["-Dconf=test-config.edn" ]
+                   :resource-paths ["env/test/resources"]
+                   }
    :profiles/dev  {}
    :profiles/test {}})
