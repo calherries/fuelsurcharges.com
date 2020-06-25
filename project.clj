@@ -72,7 +72,6 @@
   :profiles
   {:uberjar {:omit-source    true
              :prep-tasks     ["compile" ["shadow" "release" "app"]]
-             :jvm-opts       ["--illegal-access=debug"]
              :aot            :all
              :uberjar-name   "fuelsurcharges.jar"
              :source-paths   ["env/prod"  "env/prod" ]
