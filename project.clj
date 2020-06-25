@@ -53,6 +53,9 @@
 
   :min-lein-version "2.0.0"
 
+  :heroku {:app-name    "fuelsurcharges"
+           :jdk-version "14"}
+
   :source-paths ["src"]
   :test-paths ["test"]
   :resource-paths ["resources" "target/cljsbuild"]
