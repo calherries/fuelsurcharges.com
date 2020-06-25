@@ -7,9 +7,10 @@
             [fuelsurcharges.db.core :as db]
             [dk.ative.docjure.spreadsheet :as ss]))
 
-(clojure.java.io/copy
-  (:body (http-client/get "http://ec.europa.eu/energy/observatory/reports/Oil_Bulletin_Prices_History.xlsx" {:as :stream}))
-  (java.io.File. "downloads/Oil_Bulletin_Prices_History.xlsx"))
+(comment
+  (clojure.java.io/copy
+    (:body (http-client/get "http://ec.europa.eu/energy/observatory/reports/Oil_Bulletin_Prices_History.xlsx" {:as :stream}))
+    (java.io.File. "downloads/Oil_Bulletin_Prices_History.xlsx")))
 
 (defn inst->local-date [inst]
   (t/local-date inst (t/zone-id "UTC")))
