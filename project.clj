@@ -27,7 +27,7 @@
                  [metosin/ring-http-response "0.9.1"]
                  [mount "0.1.16"]
                  [nrepl "0.7.0"]
-                 [org.clojure/clojure "1.10.1"]
+                 [org.clojure/clojure "1.10.2-alpha1"]
                  [org.clojure/clojurescript "1.10.764" :scope "provided"]
                  [org.clojure/core.async "1.1.582"]
                  [org.clojure/google-closure-library "0.0-20191016-6ae1f72f" :scope "provided"]
@@ -39,7 +39,6 @@
                  [org.webjars.npm/material-icons "0.3.1"]
                  [org.webjars/webjars-locator "0.40"]
                  [etaoin "0.3.6"]
-                 [ontodev/excel "0.2.5"]
                  [clojure.java-time "0.3.2"]
                  [camel-snake-kebab "0.4.1"]
                  [re-frame "0.12.0"]
@@ -48,7 +47,7 @@
                  [ring/ring-core "1.8.1"]
                  [ring/ring-defaults "0.3.2"]
                  [selmer "1.12.27"]
-                 [ontodev/excel "0.2.5"]
+                 [dk.ative/docjure "1.14.0"]
                  [metasoarous/oz "1.6.0-alpha6"]
                  [thheller/shadow-cljs "2.9.2" :scope "provided"]]
 
@@ -71,9 +70,9 @@
   :npm-dev-deps [[xmlhttprequest "1.8.0"]]
 
   :profiles
-  {:uberjar {:omit-source true
-             :prep-tasks  ["compile" ["shadow" "release" "app"]]
-
+  {:uberjar {:omit-source    true
+             :prep-tasks     ["compile" ["shadow" "release" "app"]]
+             :jvm-opts       ["--illegal-access=debug"]
              :aot            :all
              :uberjar-name   "fuelsurcharges.jar"
              :source-paths   ["env/prod"  "env/prod" ]

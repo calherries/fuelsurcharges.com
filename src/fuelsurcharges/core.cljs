@@ -24,14 +24,6 @@
    :mark     "line"
    :width    800})
 
-(comment (let [loading?   @(rf/subscribe [:markets/loading?])
-               market-ids @(rf/subscribe [:markets/list])
-               ]
-           (for [id market-ids]
-             (let [prices @(rf/subscribe [:markets/prices-list-by-id id])]))))
-
-(def ex (oz/vega-lite (line-plot @(rf/subscribe [:markets/prices-list-by-id 1]))))
-
 (defn home []
   (let [loading?   @(rf/subscribe [:markets/loading?])
         market-ids @(rf/subscribe [:markets/list])
