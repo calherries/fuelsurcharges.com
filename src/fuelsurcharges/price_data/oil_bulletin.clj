@@ -5,8 +5,7 @@
             [java-time :as t]
             [oz.core :as oz]
             [fuelsurcharges.db.core :as db]
-            [dk.ative.docjure.spreadsheet :as ss])
-  (:gen-class))
+            [dk.ative.docjure.spreadsheet :as ss]))
 
 (clojure.java.io/copy
   (:body (http-client/get "http://ec.europa.eu/energy/observatory/reports/Oil_Bulletin_Prices_History.xlsx" {:as :stream}))
