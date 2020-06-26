@@ -53,9 +53,6 @@
 
   :min-lein-version "2.0.0"
 
-  :heroku {:app-name    "fuelsurcharges"
-           :jdk-version "14"}
-
   :source-paths ["src"]
   :test-paths ["test"]
   :resource-paths ["resources" "target/cljsbuild"]
@@ -72,27 +69,9 @@
              [react-dom "16.8.6"]]
   :npm-dev-deps [[xmlhttprequest "1.8.0"]]
 
-  :shadow-cljs { :nrepl {:port 7002}
-                :builds {:app  {:target     :browser
-                                :output-dir "target/cljsbuild/public/js"
-                                :asset-path "/js"
-                                :modules    {:app {:entries [fuelsurcharges.core]}}
-                                :devtools   {:watch-dir "resources/public"
-                                             :preloads  [devtools.preload
-                                                         day8.re-frame-10x.preload
-                                                         shadow.remote.runtime.cljs.browser]}
-                                :dev        {:compiler-options
-                                             {:optimization    :none
-                                              :closure-defines {re_frame.trace.trace_enabled?                true
-                                                                "re_frame.trace.trace_enabled_QMARK_"        true
-                                                                "day8.re_frame.tracing.trace_enabled_QMARK_" true
-                                                                "goog.DEBUG"                                 true}}}}
-                         :test {:target    :node-test
-                                :output-to "target/test/test.js"
-                                :autorun   true}}}
   :profiles
   {:uberjar {:omit-source    true
-             :prep-tasks     ["compile" ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]
+             :prep-tasks     ["compile" ["shadow" "release" "app"]]
              :aot            :all
              :uberjar-name   "fuelsurcharges.jar"
              :source-paths   ["env/prod"  "env/prod" ]
@@ -120,8 +99,10 @@
                                   :timeout 120000}
                  :injections     [(require 'pjstadig.humane-test-output)
                                   (pjstadig.humane-test-output/activate!)]}
-   :project/test  {:jvm-opts       ["-Dconf=test-config.edn" ]
-                   :resource-paths ["env/test/resources"]
-                   }
+   :project/test {:jvm-opts       ["-Dconf=test-config.edn" ]
+                  :resource-paths ["env/test/resources"]
+
+
+                  }
    :profiles/dev  {}
    :profiles/test {}})
