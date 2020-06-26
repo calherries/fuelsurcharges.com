@@ -60,21 +60,14 @@
   :main ^:skip-aot fuelsurcharges.core
 
   :plugins [[lein-shadow "0.2.0"]]
-  :clean-targets ^{:protect false}
-  [:target-path "target/cljsbuild"]
-
-  :npm-deps [[shadow-cljs "2.9.2"]
-             [create-react-class "15.6.3"]
-             [react "16.8.6"]
-             [react-dom "16.8.6"]]
-  :npm-dev-deps [[xmlhttprequest "1.8.0"]]
+  :clean-targets ^{:protect false} [:target-path "target/cljsbuild" ".shadow-cljs"]
 
   :profiles
   {:uberjar {:omit-source    true
-             :prep-tasks     ["compile" ["shadow" "release" "app"]]
+             :prep-tasks     ["compile" ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]
              :aot            :all
              :uberjar-name   "fuelsurcharges.jar"
-             :source-paths   ["env/prod"  "env/prod" ]
+             :source-paths   ["env/prod"]
              :resource-paths ["env/prod/resources"]}
 
    :dev  [:project/dev :profiles/dev]
