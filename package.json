@@ -4,7 +4,7 @@
   },
   "scripts": {
       "build": "postcss resources/css/tailwind.css -o resources/public/css/tailwind.css",
-      "watch:css": "onchange 'resources/css/*css' -- npm run build",
+      "watch:css": "onchange 'resources/css/*css' -- npm run build"
   },
   "devDependencies": {
     "shadow-cljs": "2.9.2",
