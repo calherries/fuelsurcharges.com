@@ -32,44 +32,6 @@
   (let [res (swap! uniqkey inc)]
     res))
 
-(def points
-  "0,120 20,60 40,80 60,20")
-(gen-key)
-
-(defn svg
-  [[minx miny user-width user-height :as dims] width height contents]
-  [:svg {:xmlns   "http://www.w3.org/2000/svg" :version "1.1"
-         :viewBox (apply gstring/format "%f %f %f %f" (map double dims))
-         :width   (gstring/format "%dpx" width)
-         :height  (gstring/format "%dpx" height)}
-   contents])
-
-(defn css
-  [m]
-  (string/join (for [[k v] m]
-                 (gstring/format "%s:%s;" (name k) (str v)))))
-
-(defn set-style
-  [attrs]
-  (cond-> attrs
-    (map? (:style attrs))
-    (update-in [:style] css)))
-
-(defn elem
-  ([tagname attrs]
-   [tagname (set-style attrs)])
-  ([tagname attrs contents]
-   [tagname (set-style attrs) contents]))
-
-(defn ^:private points-str
-  [sep points]
-  (string/join sep (for [[x y] points] (str (double x) \, (double y)))))
-
-(defn polyline
-  ([points] (polyline points {}))
-  ([points attrs]
-   (elem :polyline (assoc attrs :points (points-str " " points)))))
-
 (defn price-points-str [prices width height]
   (let [xs        (map #(int (* % (/ width (count prices)))) (range))
         max-price (apply max prices)
