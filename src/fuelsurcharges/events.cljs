@@ -39,8 +39,11 @@
   :markets/set
   (fn [db [_ markets]]
     (assoc db
-           :markets/list markets
+           :markets/list (-> markets
+                             hash-set)
            :markets/loading? false)))
+
+(comment (rf/dispatch [:markets/load]))
 
 (rf/reg-event-db
   :errors/set
@@ -52,32 +55,37 @@
   :markets/load
   (fn [{:keys [db]} _]
     {:db       (assoc db :markets/loading? false)
-     :ajax/get {:url           "/api/market-prices"
+     :ajax/get {:url           "/api/markets"
                 :success-event [:markets/set]
                 :error-event   [:errors/set]
-                :success-path  [:market-prices]}}))
+                :success-path  [:markets]}}))
 
-(comment (rf/dispatch [:markets/load]))
 
 (defn prices-row
   [{:keys [id market-id price currency]}]
   (price))
 
 (rf/reg-sub
+  :markets/markets
+  (fn [db _]
+    (first (:markets/list db))))
+
+(rf/reg-sub
   :markets/prices-list
   (fn [db _]
     (:markets/list db)))
-
 
 (defn unparse-date [date]
   (tf/unparse (tf/formatter "YYYY-MM-dd") date))
 
 (rf/reg-sub
-  :markets/prices-list-by-id
-  :<- [:markets/prices-list]
+  :markets/prices-by-id
+  :<- [:markets/markets]
   (fn [prices-list [_ id]]
     (->> prices-list
-         (filter #(= (:market-id %) id))
+         (filter #(comp #{1} :id))
+         first
+         :prices
          (map #(update % :price-date unparse-date))
          (map #(select-keys % [:price-date :price])))))
 

@@ -27,3 +27,8 @@ WHERE market_id = :market-id
 -- :name get-market-prices :? :*
 -- :doc selects all market_prices
 SELECT * from market_prices
+
+-- :name get-last-year-market-prices :? :*
+-- :doc selects all market_prices within the last year
+select * from market_prices
+where price_date > now() - interval '1 year' - interval '2 week';

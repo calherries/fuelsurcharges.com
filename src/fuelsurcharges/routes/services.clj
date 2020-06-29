@@ -55,7 +55,7 @@
    ["/markets"
     {:get
      (fn [_]
-       (ok {:markets (db/get-markets)}))}]
+       (ok {:markets (markets/markets-list)}))}]
    ;; {:get
    ;;  {:responses
    ;;   {200 {:body

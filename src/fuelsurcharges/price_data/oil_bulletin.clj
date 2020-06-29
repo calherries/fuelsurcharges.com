@@ -35,7 +35,7 @@
 (comment (db/create-market! {:market-name "Automotive Gas Oil with Taxes (EU), European Commission Oil Bulletin"
                              :source-name "The European Commission's Weekly Oil Bulletin"}))
 (comment (db/delete-market-prices! {:market-id 1}))
-(comment (db/insert-market-prices! {:market-prices (market-prices-insert price-data)}))
+(comment (db/insert-market-prices! {:market-prices (market-prices-insert (price-data))}))
 (comment (db/get-market-prices))
 ;; OZ
 (comment (oz/start-server!))

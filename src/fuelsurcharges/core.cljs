@@ -89,11 +89,11 @@
      [[v-box
        :children
        [[h-box
-         :height "3rem"
+         :height "4rem"
          :justify :center
          :align :center
          :children
-         [[:h1.text-2xl.font-bold "FuelSurcharges.com"]]]]]
+         [[:h1.text-4xl.font-extrabold "FuelSurcharges.com"]]]]]
       [line]
       [gap :size "1rem"]
       [h-box
@@ -106,7 +106,8 @@
            :align :center
            :width "1000px"
            :children
-           [[:h2.text-xl.font-bold "Top global fuel prices"]
+           [[:h2.text-2xl.font-bold "Top global fuel prices"]
+            [gap :size "1rem"]
             [v-box
              :children
              [[:table
@@ -118,7 +119,7 @@
                  [:th.text-right.p-2 "Price Graph (Year)"]]]
                [:tbody
                 (let [
-                      prices @(rf/subscribe [:markets/prices-list-by-id 1])
+                      prices @(rf/subscribe [:markets/prices-by-id 1])
                       width  300
                       height 100
                       points (price-points-str (take-last 52 (map :price prices)) width height)]
