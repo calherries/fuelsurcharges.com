@@ -84,55 +84,39 @@
 (defn home []
   (let [loading?   @(rf/subscribe [:markets/loading?])
         market-ids @(rf/subscribe [:markets/list])]
-    [v-box
-     :children
-     [[v-box
-       :children
-       [[h-box
-         :height "4rem"
-         :justify :center
-         :align :center
-         :children
-         [[:h1.text-4xl.font-extrabold "FuelSurcharges.com"]]]]]
-      [line]
-      [gap :size "1rem"]
-      [h-box
-       :justify :center
-       :children
-       [(if loading?
-          [:h3 "Loading markets"]
-          [v-box
-           :justify :center
-           :align :center
-           :width "1000px"
-           :children
-           [[:h2.text-2xl.font-bold "Top global fuel prices"]
-            [gap :size "1rem"]
-            [v-box
-             :children
-             [[:table
-               [:thead
-                [:tr
-                 [:th.text-left.p-2 "Name"]
-                 [:th.text-right.p-2 "Price"]
-                 [:th.text-right.p-2 "Change"]
-                 [:th.text-right.p-2 "Price Graph (Year)"]]]
-               [:tbody
-                (let [
-                      prices @(rf/subscribe [:markets/prices-by-id 1])
-                      width  300
-                      height 100
-                      points (price-points-str (take-last 52 (map :price prices)) width height)]
-                  [:tr
-                   [:td
-                    [:p.w-56.text-left.p-2
-                     "Automotive Diesel, EU"]]
-                   [:td.text-right.p-2 (->> prices last :price (gstring/format "€%d"))]
-                   [:td.text-right.p-2 "0.11%"]
-                   [:td.p-2
-                    [:div.w-40.justify-end
-                     [:svg.inline-block {:viewBox [0 0 width height]}
-                      [:polyline {:points points :stroke "grey" :fill "none" :stroke-width 2}]]]]])]]]]]])]]]]))
+    [:div.v-box
+     [:div.h-box.h-16.justify-center.items-center
+      [:h1.text-4xl.font-bold {:style {:color "#0086FF"}} "FuelSurcharges.com"]]
+     [line]
+     [:div.h-box.justify-center
+      (if loading?
+        [:h3 "Loading markets"]
+        [:div.v-box.justify-center.items-center.max-w-screen-lg
+         [:div.mt-5>h2.text-2xl.font-bold "Top global fuel prices"]
+         [:div.v-box.mt-4
+          [:table
+           [:thead
+            [:tr
+             [:th.text-left.p-2 "Name"]
+             [:th.text-right.p-2 "Price (dollars per gallon)"]
+             [:th.text-right.p-2 "Change"]
+             [:th.text-right.p-2 "Price Graph (Year)"]]]
+           [:tbody
+            (let [market @(rf/subscribe [:markets/market-by-id 3])
+                  prices @(rf/subscribe [:markets/prices-by-id 3])
+                  width  300
+                  height 100
+                  points (price-points-str (take-last 52 (map :price prices)) width height)]
+              [:tr
+               [:td
+                [:p.w-56.text-left.p-2
+                 (:market-name market)]]
+               [:td.text-right.p-2 (->> prices last :price (str "$"))]
+               [:td.text-right.p-2 "0.11%"]
+               [:td.p-2
+                [:div.w-40.justify-end
+                 [:svg.inline-block {:viewBox [0 0 width height]}
+                  [:polyline {:points points :stroke "grey" :fill "none" :stroke-width 2}]]]]])]]]])]]))
 ;; -------------------------
 ;; Initialize app
 (defn ^:dev/after-load mount-components []

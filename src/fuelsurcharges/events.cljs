@@ -79,12 +79,18 @@
   (tf/unparse (tf/formatter "YYYY-MM-dd") date))
 
 (rf/reg-sub
-  :markets/prices-by-id
+  :markets/market-by-id
   :<- [:markets/markets]
   (fn [prices-list [_ id]]
     (->> prices-list
          (filter #(comp #{1} :id))
-         first
+         first)))
+
+(rf/reg-sub
+  :markets/prices-by-id
+  :<- [:markets/market-by-id id]
+  (fn [market [_ id]]
+    (->> market
          :prices
          (map #(update % :price-date unparse-date))
          (map #(select-keys % [:price-date :price])))))

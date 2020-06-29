@@ -5,9 +5,9 @@ INSERT INTO dim_market
 VALUES (:market-name, :source-name)
 
 -- :name delete-market! :! :n
--- :doc deletes a market record given the market_name
+-- :doc deletes a market record given the market_id
 DELETE FROM dim_market
-WHERE market_name = :market-name
+WHERE id = :id
 
 -- :name get-markets :? :*
 -- :doc selects all markets

@@ -10,3 +10,11 @@
     display: -webkit-inline-flex;
     display: inline-flex;
 }
+
+.h-box {
+    @apply .flex .flex-row
+}
+
+.v-box {
+    @apply .flex .flex-col
+}
