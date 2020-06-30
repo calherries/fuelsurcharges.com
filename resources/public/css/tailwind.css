@@ -17900,7 +17900,7 @@ video {
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 0 5px 10px;
+  border-width: 0 6px 12px;
   border-color: transparent transparent #1ecd93;
 }
 
@@ -17908,7 +17908,7 @@ video {
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 10px 5px 0;
+  border-width: 12px 6px 0;
   border-color: #ff433d transparent transparent;
   border-top-color: rgb(255, 67, 61);
   border-right-color: transparent;

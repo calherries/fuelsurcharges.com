@@ -55,7 +55,7 @@
            [:thead.border-b
             [:tr
              [:th.text-left]
-             [:th.text-center {:col-span "2"} "Price per gallon"]]
+             [:th.text-center {:col-span "3"} "Dollars per gallon"]]
             [:tr
              [:th.text-left.p-2 "Price"]
              [:th.text-center.p-2 "Last Week"]
@@ -65,37 +65,40 @@
            [:tbody
             (doall
               (for [market @(rf/subscribe [:markets/markets])]
-                (let [prices         (:prices market)
-                      width          300
-                      height         100
-                      points         (price-points-str (take-last 52 (map :price prices)) width height)
-                      current-price  (->> prices last)
-                      previous-price (->> prices (take-last 2) first)
-                      change         (- (:price current-price) (:price previous-price))
+                (let [prices            (:prices market)
+                      width             300
+                      height            100
+                      points            (price-points-str (take-last 52 (map :price prices)) width height)
+                      current-price     (->> prices last)
+                      previous-price    (->> prices (take-last 2) first)
+                      change            (- (:price current-price) (:price previous-price))
+                      percentage-change (/ change (:price previous-price))
                       ]
                   ^{:key (:id market)}
                   [:tr.border-b
                    [:td
-                    [:p.w-auto.text-left.p-2
-                     (:market-name market)]]
+                    [:v-box
+                     [:p.w-auto.text-left
+                      (:market-name market)]
+                     [:p.text-xs.text-gray-500 (str "SOURCE: " (:source-name market))]]]
                    [:td.text-right.p-2
                     [:v-box.justify-center
                      [:h-box
-                      [:p.inline-block (str "$" (:price previous-price))]]
+                      [:p.inline-block (str (:price previous-price))]]
                      [:p.text-xs.text-gray-500 (unparse-date (:price-date previous-price))]]]
                    [:td.text-right.p-2
                     [:v-box
                      [:h-box
-                      [:p.inline-block (str "$" (:price current-price))]]
+                      [:p.inline-block (str (:price current-price))]]
                      [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
                    [:td.text-right.p-2
                     [:v-box
                      [:h-box
                       (if (pos? change)
-                        [:div.change-direction--positive.inline-block]
+                        [:div.change-direction--positive.inline-block.mr-1]
                         [:div.change-direction--negative.inline-block])
-                      [:p.inline-block (str "$" (gstring/format "%.2f" change))]]
-                     [:p.text-xs.text-white "-"]]]
+                      [:p.inline-block (str (gstring/format "%.3f" change))]]
+                     [:p.text-xs.text-gray-500 (str (when (pos? change) "+") (gstring/format "%.1f%" (* 100 percentage-change)))]]]
                    [:td.p-2
                     [:div.w-40.p-2
                      [:svg.inline-block {:viewBox [0 0 width height]}
