@@ -18,3 +18,23 @@
 .v-box {
     @apply .flex .flex-col
 }
+
+.change-direction--positive {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 5px 10px;
+    border-color: transparent transparent #1ecd93;
+}
+
+.change-direction--negative {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 5px 0;
+    border-color: #ff433d transparent transparent;
+    border-top-color: rgb(255, 67, 61);
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}

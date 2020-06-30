@@ -42,14 +42,14 @@
 (defn home []
   (let [loading? @(rf/subscribe [:markets/loading?])]
     [:div.v-box
-     [:div.h-box.h-16.justify-center.items-center
-      [:h1.text-4xl.font-bold {:style {:color "#0086FF"}} "FuelSurcharges.com"]]
+     [:div.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
+      [:h1.text-4xl.font-bold {:style {:color "#FFF"}} "FuelSurcharges.com"]]
      [line]
      [:div.h-box.justify-center
       (if loading?
         [:h3 "Loading markets"]
         [:div.v-box.justify-center.items-center.w-auto
-         [:div.mt-6>h2.text-2xl.font-bold "Top U.S. Fuel Prices"]
+         [:div.mt-10>h2.text-2xl.font-bold "Top U.S. Fuel Prices"]
          [:div.v-box.mt-5
           [:table
            [:thead.border-b
@@ -60,6 +60,7 @@
              [:th.text-left.p-2 "Price"]
              [:th.text-right.p-2 "Last Week"]
              [:th.text-right.p-2 "This Week"]
+             [:th.text-right.p-2 "Change"]
              [:th.text-right.p-2 "Price Graph (Year)"]]]
            [:tbody
             (doall
@@ -79,16 +80,26 @@
                      (:market-name market)]]
                    [:td.text-right.p-2
                     [:v-box
-                     [:p (str "$" (:price previous-price))]
+                     [:h-box
+                      [:p.inline-block (str "$" (:price previous-price))]]
                      [:p.text-xs.text-gray-500 (unparse-date (:price-date previous-price))]]]
                    [:td.text-right.p-2
                     [:v-box
-                     [:p (str "$" (:price current-price))]
+                     [:h-box
+                      [:p.inline-block (str "$" (:price current-price))]]
+                     [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
+                   [:td.text-right.p-2
+                    [:v-box
+                     [:h-box
+                      (if (pos? change)
+                        [:div.change-direction--positive.inline-block]
+                        [:div.change-direction--negative.inline-block])
+                      [:p.inline-block (str "$" (gstring/format "%.2f" change))]]
                      [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
                    [:td.p-2
                     [:div.w-40.p-2
                      [:svg.inline-block {:viewBox [0 0 width height]}
-                      [:polyline {:points points :stroke "#0086FF" :fill "none" :stroke-width 3}]]
+                      [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]
                      ]]]
                   )))
 
