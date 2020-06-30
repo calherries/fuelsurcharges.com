@@ -39,8 +39,7 @@
   :markets/set
   (fn [db [_ markets]]
     (assoc db
-           :markets/list (-> markets
-                             hash-set)
+           :markets/list markets
            :markets/loading? false)))
 
 (comment (rf/dispatch [:markets/load]))
@@ -66,40 +65,21 @@
   (price))
 
 (rf/reg-sub
-  :markets/markets
+  :db
   (fn [db _]
-    (first (:markets/list db))))
+    (identity db)))
 
 (rf/reg-sub
-  :markets/prices-list
+  :markets/markets
   (fn [db _]
     (:markets/list db)))
 
-(defn unparse-date [date]
-  (tf/unparse (tf/formatter "YYYY-MM-dd") date))
+;; (defn unparse-date [date]
+;;   (tf/unparse (tf/formatter "YYYY-MM-dd") date))
 
-(rf/reg-sub
-  :markets/market-by-id
-  :<- [:markets/markets]
-  (fn [prices-list [_ id]]
-    (->> prices-list
-         (filter #(comp #{1} :id))
-         first)))
-
-(rf/reg-sub
-  :markets/prices-by-id
-  :<- [:markets/market-by-id id]
-  (fn [market [_ id]]
-    (->> market
-         :prices
-         (map #(update % :price-date unparse-date))
-         (map #(select-keys % [:price-date :price])))))
-
-(rf/reg-sub
-  :markets/list
-  :<- [:markets/prices-list]
-  (fn [prices-list _]
-    (->> prices-list
-         (map :market-id)
-         set
-         vec)))
+;; (rf/reg-sub
+;;   :markets/market-list
+;;   :<- [:markets/markets]
+;;   (fn [markets _]
+;;     (->> markets
+;;          (map #(update-in % [:prices :price-date] unparse-date)))))

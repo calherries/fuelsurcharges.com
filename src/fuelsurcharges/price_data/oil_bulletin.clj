@@ -17,10 +17,20 @@
     (:body (http-client/get "https://www.eia.gov/petroleum/gasdiesel/xls/psw18vwall.xls" {:as :stream}))
     (java.io.File. "downloads/EIA_On_Highway_Diesel.xlsx")))
 
-(comment (download-eia-prices))
+(defn download-eia-gas-prices []
+  (clojure.java.io/copy
+    (:body (http-client/get "https://www.eia.gov/petroleum/gasdiesel/xls/pswrgvwall.xls" {:as :stream}))
+    (java.io.File. "downloads/EIA_Regular_Gas.xlsx")))
+
+(defn download-eia-spot-prices []
+  (clojure.java.io/copy
+    (:body (http-client/get "https://www.eia.gov/dnav/pet/xls/PET_PRI_SPT_S1_W.xls" {:as :stream}))
+    (java.io.File. "downloads/EIA_Gulf_Jet_Fuel.xlsx")))
+
+(comment (download-eia-gas-prices))
 
 (defn inst->local-date [inst]
-  (t/local-date inst (t/zone-id "UTC")))
+  (t/local-date inst (t/zone-id "Europe/Amsterdam")))
 
 (defn price-data []
   (->> (ss/load-workbook "downloads/Oil_Bulletin_Prices_History.xlsx")
@@ -40,7 +50,27 @@
        (map #(update % :date (comp t/format inst->local-date)))
        (sort-by :date)))
 
-(comment (take-last 5 eia-price-data))
+(def eia-gas-price-data
+  (->> (ss/load-workbook "downloads/EIA_Regular_Gas.xlsx")
+       (ss/select-sheet  "Data 3")
+       (ss/select-columns {:A :date, :B :price})
+       (drop 3) ;; drop the first 5 rows
+       (filter (comp inst? :date))
+       (map #(update % :date (comp t/format inst->local-date)))
+       (filter :price) ;; drop null price rows
+       (sort-by :date)))
+
+(def eia-spot-price-data
+  (->> (ss/load-workbook "downloads/EIA_Gulf_Jet_Fuel.xlsx")
+       (ss/select-sheet  "Data 6")
+       (ss/select-columns {:A :date, :B :price})
+       (filter (comp inst? :date))
+       (map #(update % :date (comp t/format inst->local-date)))
+       (drop 3) ;; drop the first 5 rows
+       (filter :price) ;; drop null price rows
+       (sort-by :date)))
+
+(comment (count eia-gas-price-data))
 
 ;; convert rows into form needed by database
 (defn market-prices-insert [id prices currency]
@@ -50,12 +80,18 @@
 (comment (db/get-markets))
 (comment (db/create-market! {:market-name "Automotive Gas Oil with Taxes (EU), European Commission Oil Bulletin"
                              :source-name "The European Commission's Weekly Oil Bulletin"}))
-(comment (db/create-market! {:market-name "U.S. Average On Highway Diesel Fuel Price"
+(comment (db/create-market! {:market-name "U.S. On Highway Diesel Fuel"
                              :source-name "EIA"}))
-(comment (db/delete-market! {:id 2}))
-(comment (db/delete-market-prices! {:market-id 3}))
+(comment (db/create-market! {:market-name "U.S. Gulf Coast Kerosene-Type Jet Fuel"
+                             :source-name "EIA"}))
+(comment (db/create-market! {:market-name "U.S. Regular Gasoline"
+                             :source-name "EIA"}))
+(comment (db/delete-market! {:id 3}))
+(comment (db/delete-market-prices! {:market-id 4}))
 (comment (db/insert-market-prices! {:market-prices (market-prices-insert 3 eia-price-data "USD")}))
-(comment (db/get-market-prices))
+(comment (db/insert-market-prices! {:market-prices (market-prices-insert 4 eia-spot-price-data "USD")}))
+(comment (db/insert-market-prices! {:market-prices (market-prices-insert 5 eia-gas-price-data "USD")}))
+(comment (map (fn [[k v]] [k (count v)]) (group-by :market-id (db/get-market-prices))))
 ;; OZ
 (comment (oz/start-server!))
 

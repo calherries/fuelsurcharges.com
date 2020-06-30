@@ -1,11 +1,6 @@
 (ns fuelsurcharges.markets
   (:require [fuelsurcharges.db.core :as db]))
 
-(defn markets-list []
-  {:markets (vec (db/get-markets))})
-
-(comment (markets-list))
-
 (defn market-prices-list []
   {:market-prices (->> (db/get-last-year-market-prices)
                        (map #(select-keys % [:market-id :price-date :price])))})

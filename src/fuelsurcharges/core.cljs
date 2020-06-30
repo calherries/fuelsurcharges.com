@@ -16,16 +16,9 @@
    [goog.string :as gstring]
    [re-com.core :as rc :refer [h-box v-box box gap line]]
    [goog.string.format]
+   [cljs-time.format :as tf]
    [mount.core :as mount])
   (:import goog.History))
-
-(defn line-plot [data]
-  {:title    "Price of automotive gas oil, 1000L"
-   :data     {:values data}
-   :encoding {:x {:field "price-date" :type "temporal"}
-              :y {:field "price" :type "quantitative"}}
-   :mark     "line"
-   :width    800})
 
 (def uniqkey (atom 0))
 (defn gen-key []
@@ -43,9 +36,11 @@
                        (string/join " "))]
     points))
 
+(defn unparse-date [date]
+  (tf/unparse (tf/formatter "MM/dd") date))
+
 (defn home []
-  (let [loading?   @(rf/subscribe [:markets/loading?])
-        market-ids @(rf/subscribe [:markets/list])]
+  (let [loading? @(rf/subscribe [:markets/loading?])]
     [:div.v-box
      [:div.h-box.h-16.justify-center.items-center
       [:h1.text-4xl.font-bold {:style {:color "#0086FF"}} "FuelSurcharges.com"]]
@@ -53,32 +48,51 @@
      [:div.h-box.justify-center
       (if loading?
         [:h3 "Loading markets"]
-        [:div.v-box.justify-center.items-center.max-w-screen-lg
-         [:div.mt-5>h2.text-2xl.font-bold "Top global fuel prices"]
-         [:div.v-box.mt-4
+        [:div.v-box.justify-center.items-center.w-auto
+         [:div.mt-6>h2.text-2xl.font-bold "Top U.S. Fuel Prices"]
+         [:div.v-box.mt-5
           [:table
-           [:thead
+           [:thead.border-b
             [:tr
-             [:th.text-left.p-2 "Name"]
-             [:th.text-right.p-2 "Price (dollars per gallon)"]
-             [:th.text-right.p-2 "Change"]
+             [:th.text-left]
+             [:th.text-center {:col-span "2"} "Price per gallon"]]
+            [:tr
+             [:th.text-left.p-2 "Price"]
+             [:th.text-right.p-2 "Last Week"]
+             [:th.text-right.p-2 "This Week"]
              [:th.text-right.p-2 "Price Graph (Year)"]]]
            [:tbody
-            (let [market @(rf/subscribe [:markets/market-by-id 3])
-                  prices @(rf/subscribe [:markets/prices-by-id 3])
-                  width  300
-                  height 100
-                  points (price-points-str (take-last 52 (map :price prices)) width height)]
-              [:tr
-               [:td
-                [:p.w-56.text-left.p-2
-                 (:market-name market)]]
-               [:td.text-right.p-2 (->> prices last :price (str "$"))]
-               [:td.text-right.p-2 "0.11%"]
-               [:td.p-2
-                [:div.w-40.justify-end
-                 [:svg.inline-block {:viewBox [0 0 width height]}
-                  [:polyline {:points points :stroke "grey" :fill "none" :stroke-width 2}]]]]])]]]])]]))
+            (doall
+              (for [market @(rf/subscribe [:markets/markets])]
+                (let [prices         (:prices market)
+                      width          300
+                      height         100
+                      points         (price-points-str (take-last 52 (map :price prices)) width height)
+                      current-price  (->> prices last)
+                      previous-price (->> prices (take-last 2) first)
+                      change         (- (:price current-price) (:price previous-price))
+                      ]
+                  ^{:key (:id market)}
+                  [:tr.border-b
+                   [:td
+                    [:p.w-auto.text-left.p-2
+                     (:market-name market)]]
+                   [:td.text-right.p-2
+                    [:v-box
+                     [:p (str "$" (:price previous-price))]
+                     [:p.text-xs.text-gray-500 (unparse-date (:price-date previous-price))]]]
+                   [:td.text-right.p-2
+                    [:v-box
+                     [:p (str "$" (:price current-price))]
+                     [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
+                   [:td.p-2
+                    [:div.w-40.p-2
+                     [:svg.inline-block {:viewBox [0 0 width height]}
+                      [:polyline {:points points :stroke "#0086FF" :fill "none" :stroke-width 3}]]
+                     ]]]
+                  )))
+
+            ]]]])]]))
 ;; -------------------------
 ;; Initialize app
 (defn ^:dev/after-load mount-components []
