@@ -10,6 +10,7 @@
    [fuelsurcharges.middleware.formats :as formats]
    [fuelsurcharges.middleware.exception :as exception]
    [fuelsurcharges.markets :as markets]
+   [fuelsurcharges.fuel-surcharges :as fsc]
    [ring.util.http-response :refer :all]
    [fuelsurcharges.db.core :as db]
    [clojure.java.io :as io]))
@@ -56,6 +57,11 @@
     {:get
      (fn [_]
        (ok {:markets (markets/markets-list)}))}]
+
+   ["/fuel-surcharges"
+    {:get
+     (fn [_]
+       (ok {:fuel-surcharges (fsc/get-fuel-surcharges-history)}))}]
    ;; {:get
    ;;  {:responses
    ;;   {200 {:body

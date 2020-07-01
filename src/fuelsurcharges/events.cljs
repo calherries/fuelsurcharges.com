@@ -10,8 +10,10 @@
 (rf/reg-event-fx
   :app/initialize
   (fn [_ _]
-    {:db       {:markets/loading? true}
-     :dispatch [:markets/load]}))
+    {:db         {:markets/loading? true
+                  :fsc/loading?     true}
+     :dispatch-n [[:markets/load]
+                  [:fsc/load]]}))
 
 (rf/reg-fx
   :ajax/get
@@ -42,7 +44,14 @@
            :markets/list markets
            :markets/loading? false)))
 
-(comment (rf/dispatch [:markets/load]))
+(rf/reg-event-db
+  :fsc/set
+  (fn [db [_ fscs]]
+    (assoc db
+           :fsc/list fscs
+           :fsc/loading? false)))
+
+(comment (rf/dispatch [:fsc/load]))
 
 (rf/reg-event-db
   :errors/set
@@ -59,6 +68,14 @@
                 :error-event   [:errors/set]
                 :success-path  [:markets]}}))
 
+(rf/reg-event-fx
+  :fsc/load
+  (fn [{:keys [db]} _]
+    {:db       (assoc db :fsc/loading? false)
+     :ajax/get {:url           "/api/fuel-surcharges"
+                :success-event [:fsc/set]
+                :error-event   [:errors/set]
+                :success-path  [:fuel-surcharges]}}))
 
 (defn prices-row
   [{:keys [id market-id price currency]}]
@@ -73,6 +90,11 @@
   :markets/markets
   (fn [db _]
     (:markets/list db)))
+
+(rf/reg-sub
+  :fsc/list
+  (fn [db _]
+    (:fsc/list db)))
 
 ;; (defn unparse-date [date]
 ;;   (tf/unparse (tf/formatter "YYYY-MM-dd") date))

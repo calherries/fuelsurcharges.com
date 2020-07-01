@@ -40,13 +40,13 @@
   (tf/unparse (tf/formatter "MM/dd") date))
 
 (defn home []
-  (let [loading? @(rf/subscribe [:markets/loading?])]
+  (let [markets-loading? @(rf/subscribe [:markets/loading?])]
     [:div.v-box
      [:div.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
       [:h1.text-2xl.font-bold {:style {:color "#FFF"}} "FuelSurcharges.com"]]
      [line]
      [:div.h-box.justify-center
-      (if loading?
+      (if markets-loading?
         [:h3 "Loading markets"]
         [:div.v-box.justify-center.items-center.w-auto
          [:div.mt-10>h2.text-2xl.font-bold "Top U.S. Fuel Prices"]

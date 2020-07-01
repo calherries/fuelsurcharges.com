@@ -52,7 +52,26 @@ SELECT * from market_prices
 -- :name get-last-year-market-prices :? :*
 -- :doc selects all market_prices within the last year
 select * from market_prices
-where price_date > now() - interval '1 year' - interval '2 week';
+where price_date > now() - interval '1 year' - interval '2 week'
+
+-- :name get-last-year-fuel-surcharges :? :*
+-- :doc selects all fuel-surcharges within the last year
+select
+  f.id as fuel_surcharge_id
+  , p.market_id
+  , p.price_date
+  , p.price
+  , max(r.price) as table_price
+  , max(r.surcharge_amount) as surcharge_amount
+from market_prices p
+join fuel_surcharges f on f.market_id = p.market_id
+join fuel_surcharge_tables t on f.id = t.fuel_surcharge_id
+join fuel_surcharge_table_rows r on t.id = r.fuel_surcharge_table_id
+where true
+  and p.price_date > now() - interval '1 year' - interval '2 week'
+  and p.price > r.price
+group by 1, 2, 3, 4
+order by p.price_date
 
 -- :name create-fuel-surcharge! :! :n
 -- :doc creates a new fuel-surcharge record
