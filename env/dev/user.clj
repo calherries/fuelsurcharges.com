@@ -47,13 +47,25 @@
 
 (defn migrate
   "Migrates database up for all outstanding migrations."
-  []
-  (migrations/migrate ["migrate"] (select-keys env [:database-url])))
+  ([]
+   (migrations/migrate ["migrate"] (select-keys env [:database-url])))
+  ([id]
+   (migrations/migrate ["migrate" id] (select-keys env [:database-url]))))
 
 (defn rollback
   "Rollback latest database migration."
   []
   (migrations/migrate ["rollback"] (select-keys env [:database-url])))
+
+(defn pending
+  "Get pending database migrations."
+  []
+  (migrations/migrate ["pending"] (select-keys env [:database-url])))
+
+(defn destroy
+  "Destroy database migration."
+  [id]
+  (migrations/migrate ["destroy" id] (select-keys env [:database-url])))
 
 (defn create-migration
   "Create a new up and down migration file with a generated timestamp and `name`."
@@ -62,6 +74,11 @@
 
 (comment (start))
 (comment (restart))
+(comment (pending))
 (comment (migrate))
-(comment (create-migration "fuel-surcharges"))
+(comment (migrate "20200701123614"))
+(comment (destroy "202007011158"))
+(comment (rollback))
+(comment (create-migration "fuel-surcharges-add-fuel-surcahrge-column"))
 (comment (create-migration "fuel-surcharge-tables"))
+(comment (create-migration "fuel-surcharge-table-rows"))

@@ -28,11 +28,11 @@
 (conman/bind-connection *db* "sql/queries.sql")
 
 (defn pgobj->clj [^org.postgresql.util.PGobject pgobj]
-  (let [type (.getType pgobj)
+  (let [type  (.getType pgobj)
         value (.getValue pgobj)]
     (case type
-      "json" (parse-string value true)
-      "jsonb" (parse-string value true)
+      "json"   (parse-string value true)
+      "jsonb"  (parse-string value true)
       "citext" (str value)
       value)))
 
@@ -101,10 +101,3 @@
 (defmethod hsqlc/hugsql-result-fn :one [_sym] 'fuelsurcharges.db.core/result-one-format)
 (defmethod hsqlc/hugsql-result-fn :* [_sym] 'fuelsurcharges.db.core/result-many-format)
 (defmethod hsqlc/hugsql-result-fn :many [_sym] 'fuelsurcharges.db.core/result-many-format)
-
-(comment (get-markets))
-(comment (create-market! {:market-name "Automotive Gas Oil with Taxes (EU), European Commission Oil Bulletin"
-                          :source-name "The European Commission's Weekly Oil Bulletin"}))
-(comment (get-market-prices))
-(comment (insert-market-prices! {:market-prices
-                                 [[1 (LocalDate/now) 1.091 "EUR"]]}))

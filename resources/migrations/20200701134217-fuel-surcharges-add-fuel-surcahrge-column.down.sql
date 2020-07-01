@@ -1,0 +1,2 @@
+ALTER TABLE fuel_surcharge_tables
+DROP price_is_rounded_to_cent;
