@@ -80,17 +80,17 @@
                      [:p.w-auto.text-left
                       (:market-name market)]
                      [:p.text-xs.text-gray-500 (str "SOURCE: " (:source-name market))]]]
-                   [:td.text-right.p-2
+                   [:td.text-center.p-2
                     [:v-box.justify-center
                      [:h-box
                       [:p.inline-block (str (:price previous-price))]]
                      [:p.text-xs.text-gray-500 (unparse-date (:price-date previous-price))]]]
-                   [:td.text-right.p-2
+                   [:td.text-center.p-2
                     [:v-box
                      [:h-box
                       [:p.inline-block (str (:price current-price))]]
                      [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
-                   [:td.text-right.p-2
+                   [:td.text-center.p-2
                     [:v-box
                      [:h-box
                       (if (pos? change)
