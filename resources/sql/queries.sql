@@ -95,7 +95,11 @@ WHERE id = :id
 DELETE FROM fuel_surcharges_tables
 WHERE id = :id
 
--- :name delete-fuel-surcharge-table_rows! :! :n
+-- :name delete-fuel-surcharge-table-rows! :! :n
 -- :doc deletes all fuel-surcharge-table rows given the table id
-DELETE FROM fuel_surcharges_table_rows
+DELETE FROM fuel_surcharge_table_rows
 WHERE fuel_surcharge_table_id = :id
+
+-- :name delete-all-fuel-surcharge-table-rows! :! :n
+-- :doc deletes all fuel-surcharge-table rows given the table id
+DELETE FROM fuel_surcharge_table_rows

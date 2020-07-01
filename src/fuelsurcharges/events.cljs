@@ -37,6 +37,11 @@
   (fn [db _]
     (:markets/loading? db)))
 
+(rf/reg-sub
+  :fsc/loading?
+  (fn [db _]
+    (:fsc/loading? db)))
+
 (rf/reg-event-db
   :markets/set
   (fn [db [_ markets]]

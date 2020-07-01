@@ -17,15 +17,18 @@
                            :B :price
                            :C :surcharge-amount})
        (drop 1)
+       (filter (comp (partial not-any? nil?) vals))
        (map #(update % :fuel-surcharge-table-id int))
        (map vals)))
 
-(comment (fuel-surcharge-table "UPS Ground"))
+(comment (fuel-surcharge-table "UPS International Air - Export"))
 
+(comment (db/get-markets))
+(comment (db/get-fuel-surcharges))
 (comment (db/get-fuel-surcharge-tables))
 (comment (db/get-fuel-surcharge-table-rows))
-(comment (db/create-fuel-surcharge! {:market-id    3
-                                     :name         "Ground"
+(comment (db/create-fuel-surcharge! {:market-id    4
+                                     :name         "International Air - Import"
                                      :source-url   "https://www.ups.com/us/en/shipping/surcharges/fuel-surcharges.page"
                                      :company-name "UPS"}))
 
@@ -33,7 +36,7 @@
                                     [[1 (LocalDate/now) 1.091 "EUR"]]}))
 
 (comment (db/create-fuel-surcharge-table!
-           {:fuel-surcharge-id        1
+           {:fuel-surcharge-id        4
             :update-interval-unit     "week"
             :update-interval          1
             :delay-period-unit        "week"
@@ -42,4 +45,11 @@
             :surcharge-type           "percentage_of_line_haul"}))
 
 (comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table "UPS Ground")}))
+           {:fuel-surcharge-table (fuel-surcharge-table  "UPS Ground")}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "UPS Domestic Air")}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "UPS International Air - Export")}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "UPS International Air - Import")}))
+(comment (db/delete-all-fuel-surcharge-table-rows! {:id 4}))
