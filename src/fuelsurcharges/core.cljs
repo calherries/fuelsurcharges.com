@@ -43,7 +43,7 @@
   (let [loading? @(rf/subscribe [:markets/loading?])]
     [:div.v-box
      [:div.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
-      [:h1.text-4xl.font-bold {:style {:color "#FFF"}} "FuelSurcharges.com"]]
+      [:h1.text-2xl.font-bold {:style {:color "#FFF"}} "FuelSurcharges.com"]]
      [line]
      [:div.h-box.justify-center
       (if loading?
@@ -51,17 +51,16 @@
         [:div.v-box.justify-center.items-center.w-auto
          [:div.mt-10>h2.text-2xl.font-bold "Top U.S. Fuel Prices"]
          [:div.v-box.mt-5
-          [:table
+          [:table.m-2
            [:thead.border-b
             [:tr
              [:th.text-left]
-             [:th.text-center {:col-span "3"} "Dollars per gallon"]]
+             [:th.text-center {:col-span "3"} "Dollars Per Gallon"]]
             [:tr
-             [:th.text-left.p-2 "Price"]
+             [:th.text-left "Price"]
              [:th.text-center.p-2 "Last Week"]
              [:th.text-center.p-2 "This Week"]
-             [:th.text-center.p-2 "Change"]
-             [:th.text-center.p-2 "Price Graph (Year)"]]]
+             [:th.text-center.p-2 "Change"]]]
            [:tbody
             (doall
               (for [market @(rf/subscribe [:markets/markets])]
@@ -99,8 +98,8 @@
                         [:div.change-direction--negative.inline-block])
                       [:p.inline-block (str (gstring/format "%.3f" change))]]
                      [:p.text-xs.text-gray-500 (str (when (pos? change) "+") (gstring/format "%.1f%" (* 100 percentage-change)))]]]
-                   [:td.p-2
-                    [:div.w-40.p-2
+                   [:td.w-0.md:p-2.invisible.md:visible
+                    [:div.w-0.md:w-40.md:p-2
                      [:svg.inline-block {:viewBox [0 0 width height]}
                       [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])))]]]])]]))
 ;; -------------------------

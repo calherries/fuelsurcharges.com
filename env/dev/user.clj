@@ -63,3 +63,5 @@
 (comment (start))
 (comment (restart))
 (comment (migrate))
+(comment (create-migration "fuel-surcharges"))
+(comment (create-migration "fuel-surcharge-tables"))
