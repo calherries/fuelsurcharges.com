@@ -21,27 +21,28 @@
        (map #(update % :fuel-surcharge-table-id int))
        (map vals)))
 
-(comment (fuel-surcharge-table "UPS International Air - Export"))
+(comment (fuel-surcharge-table "YRC LTL"))
 
 (comment (db/get-markets))
 (comment (db/get-fuel-surcharges))
 (comment (db/get-fuel-surcharge-tables))
 (comment (db/get-fuel-surcharge-table-rows))
+(comment (db/delete-fuel-surcharge! {:id 5}))
 (comment (db/create-fuel-surcharge! {:market-id    4
-                                     :name         "International Air - Import"
-                                     :source-url   "https://www.ups.com/us/en/shipping/surcharges/fuel-surcharges.page"
-                                     :company-name "UPS"}))
+                                     :name         "Jet"
+                                     :source-url   "https://yrc.com/fuel-surcharge-us/"
+                                     :company-name "YRC"}))
 
 (comment (db/insert-market-prices! {:market-prices
                                     [[1 (LocalDate/now) 1.091 "EUR"]]}))
 
 (comment (db/create-fuel-surcharge-table!
-           {:fuel-surcharge-id        4
+           {:fuel-surcharge-id        8
             :update-interval-unit     "week"
             :update-interval          1
-            :delay-period-unit        "week"
-            :delay-periods            2
-            :price-is-rounded-to-cent true
+            :delay-period-unit        "day"
+            :delay-periods            4
+            :price-is-rounded-to-cent false
             :surcharge-type           "percentage_of_line_haul"}))
 
 (comment (db/insert-fuel-surcharge-table-rows!
@@ -52,4 +53,10 @@
            {:fuel-surcharge-table (fuel-surcharge-table  "UPS International Air - Export")}))
 (comment (db/insert-fuel-surcharge-table-rows!
            {:fuel-surcharge-table (fuel-surcharge-table  "UPS International Air - Import")}))
-(comment (db/delete-all-fuel-surcharge-table-rows! {:id 4}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "YRC TL")}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "YRC LTL")}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "YRC Jet")}))
+(comment (db/delete-fuel-surcharge-table-rows! {:id 6}))

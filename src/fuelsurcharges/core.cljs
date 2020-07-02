@@ -140,7 +140,7 @@
                     [:v-box
                      [:p.w-auto.text-left
                       (str (:company-name fsc) " " (:name fsc))]
-                     [:a.text-xs.text-gray-500.block {:href (:source-url fsc)} "SOURCE: UPS.COM"]]]
+                     [:a.text-xs.text-gray-500.block {:href (:source-url fsc)} (str "SOURCE: " (:company-name fsc) ".COM")]]]
                    [:td.text-center.p-2
                     [:v-box.justify-center
                      [:h-box
@@ -154,11 +154,10 @@
                    [:td.text-center.p-2
                     [:v-box
                      [:h-box
-                      (if (pos? change)
-                        [:div.change-direction--positive.inline-block.mr-1]
-                        [:div.change-direction--negative.inline-block])
-                      [:p.inline-block (format-pct change)]]
-                     [:p.text-xs.text-gray-500 (str (when (pos? change) "+") (gstring/format "%.1f%" (* 100 percentage-change)))]]]
+                      (cond
+                        (pos? change) [:div.change-direction--positive.inline-block.mr-1]
+                        (neg? change) [:div.change-direction--negative.inline-block.mr-1])
+                      [:p.inline-block (format-pct change)]]]]
                    [:td.w-0.md:p-2.invisible.md:visible
                     [:div.w-0.md:w-40.md:p-2
                      [:svg.inline-block {:viewBox [0 0 width height]}

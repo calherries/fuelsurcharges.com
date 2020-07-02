@@ -27,7 +27,9 @@
     (:body (http-client/get "https://www.eia.gov/dnav/pet/xls/PET_PRI_SPT_S1_W.xls" {:as :stream}))
     (java.io.File. "downloads/EIA_Gulf_Jet_Fuel.xlsx")))
 
+(comment (download-eia-prices))
 (comment (download-eia-gas-prices))
+(comment (download-eia-spot-prices))
 
 (defn inst->local-date [inst]
   (t/local-date inst (t/zone-id "Europe/Amsterdam")))
@@ -87,7 +89,9 @@
 (comment (db/create-market! {:market-name "U.S. Regular Gasoline"
                              :source-name "EIA"}))
 (comment (db/delete-market! {:id 3}))
+(comment (db/delete-market-prices! {:market-id 3}))
 (comment (db/delete-market-prices! {:market-id 4}))
+(comment (db/delete-market-prices! {:market-id 5}))
 (comment (db/insert-market-prices! {:market-prices (market-prices-insert 3 eia-price-data "USD")}))
 (comment (db/insert-market-prices! {:market-prices (market-prices-insert 4 eia-spot-price-data "USD")}))
 (comment (db/insert-market-prices! {:market-prices (market-prices-insert 5 eia-gas-price-data "USD")}))
