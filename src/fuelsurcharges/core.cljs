@@ -46,6 +46,26 @@
 (defn format-pct [n]
   (gstring/format "%.2f%%" (* 100 n)))
 
+(defn subscribe []
+  (let [email (r/atom "")]
+    (fn []
+      [:div.v-box.justify-center.m-10.p-10.text-center {:style {:background-color "#EEE"}}
+       [:div.m-5
+        [:h1.text-xl.font-bold "Sign up for weekly updates"]
+        [:p "Get weekly fuel surcharge updates, right to your inbox."]]
+       [:input.m-5.text-gray-500.font-bold.p-1
+        {:type        "email"
+         :value       @email
+         :placeholder "Enter your email..."
+         :on-change   #(reset! email (-> % .-target .-value))}]
+       [:div.h-box.justify-center
+        [:button.m-5.text-white.font-bold.p-2.w-auto.rounded
+         {:style    {:background-color "#024"}
+          :on-click #(do
+                       (rf/dispatch [:user/subscribe @email])
+                       (reset! email ""))}
+         "Subscribe now"]]])))
+
 (defn home-page []
   (let [markets-loading? @(rf/subscribe [:markets/loading?])
         fsc-loading?     @(rf/subscribe [:fsc/loading?])]
@@ -65,7 +85,8 @@
              [:th.text-left "Price"]
              [:th.text-center.p-2 "Last Week"]
              [:th.text-center.p-2 "This Week"]
-             [:th.text-center.p-2 "Change"]]]
+             [:th.text-center.p-2 "Change"]
+             [:th.text-center.p-2 "History (Year)"]]]
            [:tbody
             (doall
               (for [market @(rf/subscribe [:markets/markets])]
@@ -122,7 +143,8 @@
              [:th.text-left "Fuel Surcharge"]
              [:th.text-center.p-2 "Last Week"]
              [:th.text-center.p-2 "This Week"]
-             [:th.text-center.p-2 "Change"]]]
+             [:th.text-center.p-2 "Change"]
+             [:th.text-center.p-2 "History (Year)"]]]
            [:tbody
             (doall
               (for [fsc @(rf/subscribe [:fsc/list])]
@@ -158,19 +180,24 @@
                         (pos? change) [:div.change-direction--positive.inline-block.mr-1]
                         (neg? change) [:div.change-direction--negative.inline-block.mr-1])
                       (if (zero? change)
-                        [:p.text-gray-300 "-"]
+                        [:p.text-gray-700 "-"]
                         [:p.inline-block (format-pct change)])]]]
                    [:td.w-0.md:p-2.invisible.md:visible
                     [:div.w-0.md:w-40.md:p-2
                      [:svg.inline-block {:viewBox [0 0 width height]}
-                      [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])))]]]])]]))
+                      [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])))]]]])]
+     [:div.h-box.justify-center
+      [subscribe]]]))
+
 
 (defn fsc-page []
   (let [fsc @(rf/subscribe [:fsc/selected-fsc])]
     [:div.v-box
      [:div.h-box.justify-center
-      [:div.v-box.justify-center.items-center.w-auto
-       [:div.mt-10>h2.text-2xl.font-bold (str (:company-name fsc) " " (:name fsc) " Fuel Surcharge")]
+      [:div.v-box.justify-center.w-auto.items-center
+       [:div.h-box.my-5.underline.text-gray-700
+        [:a {:href (rtfe/href :home)} "← BACK"]]
+       [:div>h2.text-2xl.font-bold (str (:company-name fsc) " " (:name fsc) " Fuel Surcharge")]
        [:div.v-box.mt-5
         [:table.m-2
          [:thead.border-b
@@ -178,10 +205,11 @@
            [:th.text-left]
            [:th.text-center {:col-span "3"} "% of Line Haul Price"]]
           [:tr
-           [:th.text-left "Fuel Surcharge"]
+           [:th.text-center.p-2 "Source"]
            [:th.text-center.p-2 "Last Week"]
            [:th.text-center.p-2 "This Week"]
-           [:th.text-center.p-2 "Change"]]]
+           [:th.text-center.p-2 "Change"]
+           [:th.text-center.p-2 "History (Year)"]]]
          [:tbody
           (let [id                (:id fsc)
                 history           (:history fsc)
@@ -194,11 +222,9 @@
                 percentage-change (/ change (:surcharge-amount previous))]
             ^{:key (:id fsc)}
             [:tr.border-b
-             [:td {:style {:width "20rem"}}
-              [:v-box
-               [:a.w-auto.text-left {:href (rtfe/href :fsc {:id id})}
-                (str (:company-name fsc) " " (:name fsc))]
-               [:a.text-xs.text-gray-500.block {:href (:source-url fsc)} (str "SOURCE: " (string/upper-case (:company-name fsc)) ".COM")]]]
+             [:td.text-center
+              [:v-box.justfiy-center
+               [:a.underline.text-gray-700 {:href (:source-url fsc)} (str (string/upper-case (:company-name fsc)) ".COM")]]]
              [:td.text-center.p-2
               [:v-box.justify-center
                [:h-box
@@ -216,7 +242,7 @@
                   (pos? change) [:div.change-direction--positive.inline-block.mr-1]
                   (neg? change) [:div.change-direction--negative.inline-block.mr-1])
                 (if (zero? change)
-                  [:p.text-gray-300 "-"]
+                  [:p.text-gray-700 "-"]
                   [:p.inline-block (format-pct change)])]]]
              [:td.w-0.md:p-2.invisible.md:visible
               [:div.w-0.md:w-40.md:p-2
@@ -245,8 +271,7 @@
              [:td.text-center.p-2 {:style {:width "25%"}}
               [:v-box
                [:h-box
-                [:p.inline-block (format-pct (:surcharge-amount price))]]]]])
-          ]]]]]]))
+                [:p.inline-block (format-pct (:surcharge-amount price))]]]]])]]]]]]))
 
 (defn header []
   [:header.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
@@ -273,12 +298,11 @@
    [""
     {:name :home
      :view (base-page home-page)}]
-   [":id"
+   ["fsc/:id"
     {:name        :fsc
      :view        (base-page fsc-page)
      :parameters  {:path {:id int?}}
      :controllers [{:parameters {:path [:id]}}]}]])
-
 
 (def router
   (rtf/router

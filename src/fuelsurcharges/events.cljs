@@ -163,12 +163,7 @@
            (filter (comp #{id} :id))
            first))))
 
-;; (defn unparse-date [date]
-;;   (tf/unparse (tf/formatter "YYYY-MM-dd") date))
-
-;; (rf/reg-sub
-;;   :markets/market-list
-;;   :<- [:markets/markets]
-;;   (fn [markets _]
-;;     (->> markets
-;;          (map #(update-in % [:prices :price-date] unparse-date)))))
+(rf/reg-event-db
+  :user/subscribe
+  (fn [db [_ email]]
+    (assoc db :user/email email)))
