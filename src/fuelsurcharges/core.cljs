@@ -271,7 +271,9 @@
              [:td.text-center.p-2 {:style {:width "25%"}}
               [:v-box
                [:h-box
-                [:p.inline-block (format-pct (:surcharge-amount price))]]]]])]]]]]]))
+                [:p.inline-block (format-pct (:surcharge-amount price))]]]]])]]]
+       [:div.h-box.justify-center
+        [subscribe]]]]]))
 
 (defn header []
   [:header.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
