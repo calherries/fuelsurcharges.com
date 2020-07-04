@@ -4,6 +4,8 @@
    [ajax.core :refer [GET POST]]
    [cljs-time.core :as t]
    [cljs-time.format :as tf]
+   [reitit.frontend.controllers :as rtfc]
+   [reitit.frontend.easy :as rtfe]
    [fuelsurcharges.ajax :refer [as-transit]]
    [clojure.pprint :refer [pprint]]))
 
@@ -11,9 +13,44 @@
   :app/initialize
   (fn [_ _]
     {:db         {:markets/loading? true
-                  :fsc/loading?     true}
+                  :fsc/loading?     true
+                  :app/route        nil}
      :dispatch-n [[:markets/load]
                   [:fsc/load]]}))
+
+;; Routing
+
+;; Effects
+
+;; Triggering navigation from events.
+(rf/reg-fx
+  :app/navigate
+  (fn [route]
+    (apply rtfe/push-state route)))
+
+;; Events
+
+(rf/reg-event-fx
+  :app/navigate
+  (fn [db [_ & route]]
+    ;; See `navigate` effect in routes.cljs
+    {:app/navigate route}))
+
+(rf/reg-event-db
+  :app/navigated
+  (fn [db [_ new-match]]
+    (let [old-match   (:app/route db)
+          controllers (rtfc/apply-controllers (:controllers old-match) new-match)]
+      (assoc db :app/route (assoc new-match :controllers controllers)))))
+
+;; Subscriptions
+
+(rf/reg-sub
+  :app/route
+  (fn [db]
+    (:app/route db)))
+
+;; Other Effects
 
 (rf/reg-fx
   :ajax/get
@@ -100,6 +137,31 @@
   :fsc/list
   (fn [db _]
     (:fsc/list db)))
+
+(rf/reg-sub
+  :fsc/fsc-by-id
+  :<- [:fsc/list]
+  (fn [fscs [_ id]]
+    (->> fscs
+         (filter (comp #{1} :id))
+         first)))
+
+(rf/reg-sub
+  :fsc/current-id
+  (fn [fscs [_ id]]
+    (->> fscs
+         (filter (comp #{1} :id))
+         first)))
+
+(rf/reg-sub
+  :fsc/selected-fsc
+  :<- [:fsc/list]
+  :<- [:app/route]
+  (fn [[fscs route] [_ id]]
+    (let [id (-> route :parameters :path :id)]
+      (->> fscs
+           (filter (comp #{id} :id))
+           first))))
 
 ;; (defn unparse-date [date]
 ;;   (tf/unparse (tf/formatter "YYYY-MM-dd") date))
