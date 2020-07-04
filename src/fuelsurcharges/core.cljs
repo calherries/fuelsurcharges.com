@@ -50,10 +50,6 @@
   (let [markets-loading? @(rf/subscribe [:markets/loading?])
         fsc-loading?     @(rf/subscribe [:fsc/loading?])]
     [:div.v-box
-     [:div.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
-      [:a {:href (rtfe/href :home)}
-       [:h1.text-2xl.font-bold {:style {:color "#FFF"}} "FuelSurcharges.com"]]]
-     [line]
      [:div.h-box.justify-center
       (if markets-loading?
         [:h3 "Loading markets"]
@@ -172,10 +168,6 @@
 (defn fsc-page []
   (let [fsc @(rf/subscribe [:fsc/selected-fsc])]
     [:div.v-box
-     [:div.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
-      [:a {:href (rtfe/href :home)}
-       [:h1.text-2xl.font-bold {:style {:color "#FFF"}} "FuelSurcharges.com"]]]
-     [line]
      [:div.h-box.justify-center
       [:div.v-box.justify-center.items-center.w-auto
        [:div.mt-10>h2.text-2xl.font-bold (str (:company-name fsc) " " (:name fsc) " Fuel Surcharge")]
@@ -254,10 +246,24 @@
               [:v-box
                [:h-box
                 [:p.inline-block (format-pct (:surcharge-amount price))]]]]])
-          ]]]
-       ]]]))
+          ]]]]]]))
 
-(def x @(rf/subscribe [:fsc/selected-fsc]))
+(defn header []
+  [:header.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
+   [:a {:href (rtfe/href :home)}
+    [:h1.text-2xl.font-bold {:style {:color "#FFF"}} "FuelSurcharges.com"]]])
+
+(defn footer []
+  [:footer.mt-10.h-box.h-16.justify-center.items-center {:style {:background-color "#EEE"}}
+   [:a {:href (rtfe/href :home)}
+    [:p {:style {:color "#888"}} "© 2020 FuelSurcharges.com"]]])
+
+(defn base-page [page]
+  (fn []
+    [:div.v-box
+     [header]
+     [page]
+     [footer]]))
 
 ;; -------------------------
 ;; Routing
@@ -266,45 +272,45 @@
   ["/"
    [""
     {:name :home
-     :view home-page}]
+     :view (base-page home-page)}]
    [":id"
     {:name        :fsc
-     :view        fsc-page
+     :view        (base-page fsc-page)
      :parameters  {:path {:id int?}}
      :controllers [{:parameters {:path [:id]}}]}]])
 
 
 (def router
-(rtf/router
-routes
-{:data {:coercion rts/coercion}}))
+  (rtf/router
+    routes
+    {:data {:coercion rts/coercion}}))
 
 (defn on-navigate [new-match]
-(when new-match
-(rf/dispatch [:app/navigated new-match])))
+  (when new-match
+    (rf/dispatch [:app/navigated new-match])))
 
 (defn init-routes! []
-(js/console.log "initialising routes")
-(rtfe/start!
-router
-on-navigate
-{:use-fragment true}))
+  (js/console.log "initialising routes")
+  (rtfe/start!
+    router
+    on-navigate
+    {:use-fragment true}))
 
 (defn current-page []
-(let [current-route @(rf/subscribe [:app/route])]
-[:div
- (when current-route
-   [(-> current-route :data :view)])]))
+  (let [current-route @(rf/subscribe [:app/route])]
+    [:div
+     (when current-route
+       [(-> current-route :data :view)])]))
 
 ;; -------------------------
 ;; Initialize app
 (defn ^:dev/after-load mount-components []
-(rf/clear-subscription-cache!)
-(init-routes!)
-(rdom/render [current-page]
-(.getElementById js/document "app")))
+  (rf/clear-subscription-cache!)
+  (init-routes!)
+  (rdom/render [current-page]
+               (.getElementById js/document "app")))
 
 (defn init! []
-(ajax/load-interceptors!)
-(rf/dispatch-sync [:app/initialize])
-(mount-components))
+  (ajax/load-interceptors!)
+  (rf/dispatch-sync [:app/initialize])
+  (mount-components))

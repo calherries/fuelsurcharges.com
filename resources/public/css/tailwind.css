@@ -17916,6 +17916,10 @@ video {
   border-left-color: transparent;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
 @media (min-width: 640px) {
   .sm\:space-y-0 > :not(template) ~ :not(template) {
     --space-y-reverse: 0;

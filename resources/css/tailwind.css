@@ -38,3 +38,7 @@
     border-bottom-color: transparent;
     border-left-color: transparent;
 }
+
+a:hover {
+    text-decoration: underline;
+}
