@@ -79,11 +79,11 @@
                       ]
                   ^{:key (:id market)}
                   [:tr.border-b
-                   [:td
+                   [:td {:style {:width "20rem"}}
                     [:v-box
-                     [:p.w-auto.text-left
+                     [:p.text-left
                       (:market-name market)]
-                     [:p.text-xs.text-gray-500 (str "SOURCE: " (:source-name market))]]]
+                     [:a.text-xs.text-gray-500.block {:href "https://www.eia.gov/petroleum/gasdiesel/"} "SOURCE: EIA.GOV"]]]
                    [:td.text-center.p-2
                     [:v-box.justify-center
                      [:h-box
@@ -136,11 +136,11 @@
                       ]
                   ^{:key (:id fsc)}
                   [:tr.border-b
-                   [:td
+                   [:td {:style {:width "20rem"}}
                     [:v-box
                      [:p.w-auto.text-left
                       (str (:company-name fsc) " " (:name fsc))]
-                     [:a.text-xs.text-gray-500.block {:href (:source-url fsc)} (str "SOURCE: " (:company-name fsc) ".COM")]]]
+                     [:a.text-xs.text-gray-500.block {:href (:source-url fsc)} (str "SOURCE: " (string/upper-case (:company-name fsc)) ".COM")]]]
                    [:td.text-center.p-2
                     [:v-box.justify-center
                      [:h-box
@@ -157,7 +157,9 @@
                       (cond
                         (pos? change) [:div.change-direction--positive.inline-block.mr-1]
                         (neg? change) [:div.change-direction--negative.inline-block.mr-1])
-                      [:p.inline-block (format-pct change)]]]]
+                      (if (zero? change)
+                        [:p.text-gray-300 "-"]
+                        [:p.inline-block (format-pct change)])]]]
                    [:td.w-0.md:p-2.invisible.md:visible
                     [:div.w-0.md:w-40.md:p-2
                      [:svg.inline-block {:viewBox [0 0 width height]}

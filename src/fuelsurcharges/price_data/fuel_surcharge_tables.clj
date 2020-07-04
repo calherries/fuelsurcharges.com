@@ -21,28 +21,28 @@
        (map #(update % :fuel-surcharge-table-id int))
        (map vals)))
 
-(comment (fuel-surcharge-table "YRC LTL"))
+(comment (fuel-surcharge-table "FedEx Freight"))
 
 (comment (db/get-markets))
 (comment (db/get-fuel-surcharges))
 (comment (db/get-fuel-surcharge-tables))
 (comment (db/get-fuel-surcharge-table-rows))
 (comment (db/delete-fuel-surcharge! {:id 5}))
-(comment (db/create-fuel-surcharge! {:market-id    4
-                                     :name         "Jet"
-                                     :source-url   "https://yrc.com/fuel-surcharge-us/"
-                                     :company-name "YRC"}))
+(comment (db/create-fuel-surcharge! {:market-id    3
+                                     :name         "Freight"
+                                     :source-url   "https://www.fedex.com/en-us/shipping/fuel-surcharge.html"
+                                     :company-name "FedEx"}))
 
 (comment (db/insert-market-prices! {:market-prices
                                     [[1 (LocalDate/now) 1.091 "EUR"]]}))
 
 (comment (db/create-fuel-surcharge-table!
-           {:fuel-surcharge-id        8
+           {:fuel-surcharge-id        10
             :update-interval-unit     "week"
             :update-interval          1
             :delay-period-unit        "day"
-            :delay-periods            4
-            :price-is-rounded-to-cent false
+            :delay-periods            10
+            :price-is-rounded-to-cent true
             :surcharge-type           "percentage_of_line_haul"}))
 
 (comment (db/insert-fuel-surcharge-table-rows!
@@ -59,4 +59,8 @@
            {:fuel-surcharge-table (fuel-surcharge-table  "YRC LTL")}))
 (comment (db/insert-fuel-surcharge-table-rows!
            {:fuel-surcharge-table (fuel-surcharge-table  "YRC Jet")}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "FedEx Ground")}))
+(comment (db/insert-fuel-surcharge-table-rows!
+           {:fuel-surcharge-table (fuel-surcharge-table  "FedEx Freight")}))
 (comment (db/delete-fuel-surcharge-table-rows! {:id 6}))
