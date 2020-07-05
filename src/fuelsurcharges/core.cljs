@@ -85,8 +85,7 @@
              [:th.text-left "Price"]
              [:th.text-center.p-2 "Last Week"]
              [:th.text-center.p-2 "This Week"]
-             [:th.text-center.p-2 "Change"]
-             [:th.text-center.p-2 "History (Year)"]]]
+             [:th.text-center.p-2 "Change"]]]
            [:tbody
             (doall
               (for [market @(rf/subscribe [:markets/markets])]
@@ -143,19 +142,17 @@
              [:th.text-left "Fuel Surcharge"]
              [:th.text-center.p-2 "Last Week"]
              [:th.text-center.p-2 "This Week"]
-             [:th.text-center.p-2 "Change"]
-             [:th.text-center.p-2 "History (Year)"]]]
+             [:th.text-center.p-2 "Change"]]]
            [:tbody
             (doall
               (for [fsc @(rf/subscribe [:fsc/list])]
-                (let [history           (:history fsc)
-                      width             300
-                      height            100
-                      points            (price-points-str (take-last 52 (map :surcharge-amount history)) width height)
-                      current           (->> history last)
-                      previous          (->> history (take-last 2) first)
-                      change            (- (:surcharge-amount current) (:surcharge-amount previous))
-                      percentage-change (/ change (:surcharge-amount previous))]
+                (let [history  (:history fsc)
+                      width    300
+                      height   100
+                      points   (price-points-str (take-last 52 (map :surcharge-amount history)) width height)
+                      current  (->> history last)
+                      previous (->> history (take-last 2) first)
+                      change   (- (:surcharge-amount current) (:surcharge-amount previous))]
                   ^{:key (:id fsc)}
                   [:tr.border-b
                    [:td {:style {:width "20rem"}}
@@ -187,7 +184,8 @@
                      [:svg.inline-block {:viewBox [0 0 width height]}
                       [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])))]]]])]
      [:div.h-box.justify-center
-      [subscribe]]]))
+      (when (not (or fsc-loading? markets-loading?))
+        [subscribe])]]))
 
 
 (defn fsc-page []
@@ -211,15 +209,14 @@
            [:th.text-center.p-2 "Change"]
            [:th.text-center.p-2 "History (Year)"]]]
          [:tbody
-          (let [id                (:id fsc)
-                history           (:history fsc)
-                width             300
-                height            100
-                points            (price-points-str (take-last 52 (map :surcharge-amount history)) width height)
-                current           (->> history last)
-                previous          (->> history (take-last 2) first)
-                change            (- (:surcharge-amount current) (:surcharge-amount previous))
-                percentage-change (/ change (:surcharge-amount previous))]
+          (let [id       (:id fsc)
+                history  (:history fsc)
+                width    300
+                height   100
+                points   (price-points-str (take-last 52 (map :surcharge-amount history)) width height)
+                current  (->> history last)
+                previous (->> history (take-last 2) first)
+                change   (- (:surcharge-amount current) (:surcharge-amount previous))]
             ^{:key (:id fsc)}
             [:tr.border-b
              [:td.text-center
