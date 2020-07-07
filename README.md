@@ -1,4 +1,8 @@
-# fuelsurcharges
+# fuelsurcharges.com
+
+A full-stack Clojure web app for shippers and carriers to track and audit the fuel surcharges on their shipments.
+
+This site is live in production, at www.fuelsurcharges.com
 
 The following libraries are used:
 * Http-kit for the web server
