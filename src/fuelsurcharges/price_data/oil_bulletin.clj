@@ -72,7 +72,7 @@
        (filter :price) ;; drop null price rows
        (sort-by :date)))
 
-(comment (count eia-gas-price-data))
+(comment (take-last 5 eia-gas-price-data))
 
 ;; convert rows into form needed by database
 (defn market-prices-insert [id prices currency]

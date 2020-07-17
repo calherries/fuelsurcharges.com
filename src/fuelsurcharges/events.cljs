@@ -154,14 +154,26 @@
          first)))
 
 (rf/reg-sub
+  :markets/selected
+  :<- [:markets/markets]
+  :<- [:app/route]
+  (fn [[fscs route] [_ id]]
+    (when (#{:market} (-> route :data :name))
+      (let [id (-> route :parameters :path :id)]
+        (->> fscs
+             (filter (comp #{id} :id))
+             first)))))
+
+(rf/reg-sub
   :fsc/selected-fsc
   :<- [:fsc/list]
   :<- [:app/route]
   (fn [[fscs route] [_ id]]
-    (let [id (-> route :parameters :path :id)]
-      (->> fscs
-           (filter (comp #{id} :id))
-           first))))
+    (when (#{:fsc} (-> route :data :name))
+      (let [id (-> route :parameters :path :id)]
+        (->> fscs
+             (filter (comp #{id} :id))
+             first)))))
 
 (rf/reg-event-db
   :user/subscribe

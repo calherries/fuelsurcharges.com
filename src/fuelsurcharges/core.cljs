@@ -102,7 +102,7 @@
                   [:tr.border-b
                    [:td {:style {:width "20rem"}}
                     [:v-box
-                     [:p.text-left
+                     [:a.w-auto.text-left {:href (rtfe/href :market {:id (:id market)})}
                       (:market-name market)]
                      [:a.text-xs.text-gray-500.block {:href "https://www.eia.gov/petroleum/gasdiesel/"} "SOURCE: EIA.GOV"]]]
                    [:td.text-center.p-2
@@ -187,6 +187,83 @@
       (when (not (or fsc-loading? markets-loading?))
         [subscribe])]]))
 
+(defn market-page []
+  (let [market @(rf/subscribe [:markets/selected])]
+    [:div.v-box
+     [:div.h-box.justify-center
+      [:div.v-box.justify-center.w-auto.items-center
+       [:div.h-box.my-5.underline.text-gray-700
+        [:a {:href (rtfe/href :home)} "← BACK"]]
+       [:div>h2.text-2xl.font-bold (:market-name market)]
+       [:div.v-box.mt-5
+        [:table.m-2
+         [:thead.border-b
+          [:tr
+           [:th.text-left]
+           [:th.text-center {:col-span "3"} "Dollars Per Gallon"]]
+          [:tr
+           [:th.text-left "Source"]
+           [:th.text-center.p-2 "Last Week"]
+           [:th.text-center.p-2 "This Week"]
+           [:th.text-center.p-2 "Change"]]]
+         [:tbody
+          (let [prices            (:prices market)
+                width             300
+                height            100
+                points            (price-points-str (take-last 52 (map :price prices)) width height)
+                current-price     (->> prices last)
+                previous-price    (->> prices (take-last 2) first)
+                change            (- (:price current-price) (:price previous-price))
+                percentage-change (/ change (:price previous-price))
+                ]
+            ^{:key (:id market)}
+            [:tr.border-b
+             [:td.text-center
+              [:v-box.justify-center
+               [:a.text-xs.text-gray-700 {:href "https://www.eia.gov/petroleum/gasdiesel/"} "EIA.GOV"]]]
+             [:td.text-center.p-2
+              [:v-box.justify-center
+               [:h-box
+                [:p.inline-block (str (:price previous-price))]]
+               [:p.text-xs.text-gray-500 (unparse-date (:price-date previous-price))]]]
+             [:td.text-center.p-2
+              [:v-box
+               [:h-box
+                [:p.inline-block (str (:price current-price))]]
+               [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
+             [:td.text-center.p-2
+              [:v-box
+               [:h-box
+                (if (pos? change)
+                  [:div.change-direction--positive.inline-block.mr-1]
+                  [:div.change-direction--negative.inline-block])
+                [:p.inline-block (gstring/format "%.3f" change)]]
+               [:p.text-xs.text-gray-500 (str (when (pos? change) "+") (gstring/format "%.1f%" (* 100 percentage-change)))]]]
+             [:td.w-0.md:p-2.invisible.md:visible
+              [:div.w-0.md:w-40.md:p-2
+               [:svg.inline-block {:viewBox [0 0 width height]}
+                [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])]]]
+       [:div.mt-10>h2.text-2xl.font-bold "History"]
+       [:div.v-box.mt-5
+        [:table.m-2.table-fixed {:style {:width "50rem"}}
+         [:thead.border-b
+          [:tr
+           [:th.text-center "Start Date"]
+           [:th.text-center "End Date"]
+           [:th.text-center.p-2 "Fuel Price"]]]
+         [:tbody
+          (for [price (reverse (:prices market))]
+            [:tr.border-b.text-center
+             [:td {:style {:width "25%"}}
+              (tf/unparse (tf/formatter "MMM d, yyyy") (:price-date price))]
+             [:td {:style {:width "25%"}}
+              (tf/unparse (tf/formatter "MMM d, yyyy") (t/plus (:price-date price) (t/days 7)))]
+             [:td.text-center.p-2 {:style {:width "25%"}}
+              [:v-box.justify-center
+               [:h-box
+                [:p.inline-block (gstring/format "%.3f" (:price price))]]]]])]]]
+       [:div.h-box.justify-center
+        [subscribe]]]]]))
 
 (defn fsc-page []
   (let [fsc @(rf/subscribe [:fsc/selected-fsc])]
@@ -206,8 +283,7 @@
            [:th.text-center.p-2 "Source"]
            [:th.text-center.p-2 "Last Week"]
            [:th.text-center.p-2 "This Week"]
-           [:th.text-center.p-2 "Change"]
-           [:th.text-center.p-2 "History (Year)"]]]
+           [:th.text-center.p-2 "Change"]]]
          [:tbody
           (let [id       (:id fsc)
                 history  (:history fsc)
@@ -297,6 +373,11 @@
    [""
     {:name :home
      :view (base-page home-page)}]
+   ["market/:id"
+    {:name        :market
+     :view        (base-page market-page)
+     :parameters  {:path {:id int?}}
+     :controllers [{:parameters {:path [:id]}}]}]
    ["fsc/:id"
     {:name        :fsc
      :view        (base-page fsc-page)
