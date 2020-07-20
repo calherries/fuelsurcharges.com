@@ -48,7 +48,9 @@
                  [ring/ring-core "1.8.1"]
                  [ring/ring-defaults "0.3.2"]
                  [selmer "1.12.27"]
+                 [missionary "b.17"]
                  [dk.ative/docjure "1.14.0"]
+                 [district0x.re-frame/google-analytics-fx "1.0.0"]
                  [metasoarous/oz "1.6.0-alpha6"]
                  [thheller/shadow-cljs "2.9.2" :scope "provided"]]
 
@@ -70,6 +72,11 @@
              :uberjar-name   "fuelsurcharges.jar"
              :source-paths   ["env/prod"]
              :resource-paths ["env/prod/resources"]}
+
+   :update-markets {:omit-source    true
+                    :uberjar-name   "update_markets.jar"
+                    :source-paths   ["env/prod"]
+                    :resource-paths ["env/prod/resources"]}
 
    :dev  [:project/dev :profiles/dev]
    :test [:project/dev :project/test :profiles/test]
