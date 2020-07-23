@@ -11,5 +11,6 @@
          (map #(assoc % :history (filter (comp #{(:id %)} :fuel-surcharge-id) history))))))
 
 (comment (get-fuel-surcharges-history))
+(comment (db/get-current-fuel-surcharge-table-rows {:id 3}))
 (comment (db/get-fuel-surcharges))
 (comment (db/get-last-year-fuel-surcharges))

@@ -253,6 +253,7 @@
            [:th.text-center.p-2 "Fuel Price"]]]
          [:tbody
           (for [price (reverse (:prices market))]
+            ^{:key (gen-key)}
             [:tr.border-b.text-center
              [:td {:style {:width "25%"}}
               (tf/unparse (tf/formatter "MMM d, yyyy") (:price-date price))]
@@ -265,62 +266,62 @@
        [:div.h-box.justify-center
         [subscribe]]]]]))
 
+(defn indices [pred coll]
+  (keep-indexed #(when (pred %2) %1) coll))
+
+(defn display-subset [fsc-table-data current-surcharge]
+  (let [current-index (first (indices #(= (:surcharge-amount %) (:surcharge-amount current-surcharge))
+                                      fsc-table-data))]
+    (keep-indexed #(when
+                       (and
+                         (> %1 (- current-index 10))
+                         (< %1 (+ current-index 10)))
+                     %2)
+                  fsc-table-data)))
+
+(display-subset @(rf/subscribe [:fsc/selected-fsc-table]) {:surcharge-amount 0.065})
+
+(defn fsc-table [fsc-table-data current-surcharge]
+  [:table.m-5.text-center
+   [:thead.border-b
+    [:tr.w-12
+     [:th.p-2.w-full "Fuel Price"]
+     [:th.p-2.w-full "Fuel Surcharge"]]]
+   [:tbody
+    (for [{:keys [price surcharge-amount]} (display-subset fsc-table-data current-surcharge)]
+      (let [row-style (if (= surcharge-amount (:surcharge-amount current-surcharge))
+                        {:class "font-bold"
+                         :style {:color "#3BB143"}}
+                        {})]
+        ^{:key (gen-key)}
+        [:tr.border-b.text-center
+         [:td.p-1 row-style
+          (gstring/format "%.3f" price)]
+         [:td.p-1 row-style
+          (format-pct surcharge-amount)]]))]])
+
 (defn fsc-page []
-  (let [fsc @(rf/subscribe [:fsc/selected-fsc])]
+  (let [fsc               @(rf/subscribe [:fsc/selected-fsc])
+        fsc-table-data    @(rf/subscribe [:fsc/selected-fsc-table])
+        current-surcharge (-> fsc :history last)]
     [:div.v-box
      [:div.h-box.justify-center
       [:div.v-box.justify-center.w-auto.items-center
        [:div.h-box.my-5.underline.text-gray-700
         [:a {:href (rtfe/href :home)} "← BACK"]]
        [:div>h2.text-2xl.font-bold (str (:company-name fsc) " " (:name fsc) " Fuel Surcharge")]
-       [:div.v-box.mt-5
-        [:table.m-2
-         [:thead.border-b
-          [:tr
-           [:th.text-left]
-           [:th.text-center {:col-span "3"} "% of Line Haul Price"]]
-          [:tr
-           [:th.text-center.p-2 "Source"]
-           [:th.text-center.p-2 "Last Week"]
-           [:th.text-center.p-2 "This Week"]
-           [:th.text-center.p-2 "Change"]]]
-         [:tbody
-          (let [id       (:id fsc)
-                history  (:history fsc)
-                width    300
-                height   100
-                points   (price-points-str (take-last 52 (map :surcharge-amount history)) width height)
-                current  (->> history last)
-                previous (->> history (take-last 2) first)
-                change   (- (:surcharge-amount current) (:surcharge-amount previous))]
-            ^{:key (:id fsc)}
-            [:tr.border-b
-             [:td.text-center
-              [:v-box.justfiy-center
-               [:a.underline.text-gray-700 {:href (:source-url fsc)} (str (string/upper-case (:company-name fsc)) ".COM")]]]
-             [:td.text-center.p-2
-              [:v-box.justify-center
-               [:h-box
-                [:p.inline-block (format-pct (:surcharge-amount previous))]]
-               [:p.text-xs.text-gray-500 (unparse-date (:price-date previous))]]]
-             [:td.text-center.p-2
-              [:v-box
-               [:h-box
-                [:p.inline-block (format-pct (:surcharge-amount current))]]
-               [:p.text-xs.text-gray-500 (unparse-date (:price-date current))]]]
-             [:td.text-center.p-2
-              [:v-box
-               [:h-box
-                (cond
-                  (pos? change) [:div.change-direction--positive.inline-block.mr-1]
-                  (neg? change) [:div.change-direction--negative.inline-block.mr-1])
-                (if (zero? change)
-                  [:p.text-gray-700 "-"]
-                  [:p.inline-block (format-pct change)])]]]
-             [:td.w-0.md:p-2.invisible.md:visible
-              [:div.w-0.md:w-40.md:p-2
-               [:svg.inline-block {:viewBox [0 0 width height]}
-                [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])]]]
+       [:p.mt-5
+        "The current fuel price is "
+        [:span.font-bold {:style {:color "#3BB143"}}
+         (gstring/format "%.3f" (:price current-surcharge))]
+        " gallons per litre."]
+       [:p
+        "The fuel surcharge is "
+        [:span.font-bold {:style {:color "#3BB143"}}
+         (format-pct (:surcharge-amount current-surcharge))]
+        "."]
+       [:div.mt-10>h2.text-2xl.font-bold "Rate Table"]
+       [fsc-table fsc-table-data current-surcharge]
        [:div.mt-10>h2.text-2xl.font-bold "History"]
        [:div.v-box.mt-5
         [:table.m-2.table-fixed {:style {:width "50rem"}}
@@ -332,6 +333,7 @@
            [:th.text-center.p-2 "Fuel Surcharge"]]]
          [:tbody
           (for [price (reverse (:history fsc))]
+            ^{:key (gen-key)}
             [:tr.border-b.text-center
              [:td {:style {:width "25%"}}
               (tf/unparse (tf/formatter "MMM d, yyyy") (:price-date price))]
@@ -382,7 +384,9 @@
     {:name        :fsc
      :view        (base-page fsc-page)
      :parameters  {:path {:id int?}}
-     :controllers [{:parameters {:path [:id]}}]}]])
+     :controllers [{:parameters {:path [:id]}
+                    :start      (fn [{{id :id} :path}]
+                                  (rf/dispatch [:fsc/load-fsc-page-data id]))}]}]])
 
 (def router
   (rtf/router

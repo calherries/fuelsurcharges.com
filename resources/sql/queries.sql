@@ -103,3 +103,13 @@ WHERE fuel_surcharge_table_id = :id
 -- :name delete-all-fuel-surcharge-table-rows! :! :n
 -- :doc deletes all fuel-surcharge-table rows given the table id
 DELETE FROM fuel_surcharge_table_rows
+
+-- :name get-current-fuel-surcharge-table-rows :? :*
+-- :doc gets the current fuel-surcharge-table rows given the fuel surcharge id
+select
+  r.price
+  , r.surcharge_amount
+from fuel_surcharges f
+join fuel_surcharge_tables t on f.id = t.fuel_surcharge_id
+join fuel_surcharge_table_rows r on t.id = r.fuel_surcharge_table_id
+where f.id = :id

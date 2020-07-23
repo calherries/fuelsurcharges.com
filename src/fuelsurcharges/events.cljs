@@ -54,8 +54,9 @@
 
 (rf/reg-fx
   :ajax/get
-  (fn [{:keys [url success-event error-event success-path]}]
+  (fn [{:keys [url success-event error-event success-path params]}]
     (GET url (as-transit (cond-> {:headers {"Accept" "application/transit+json"}}
+                           params        (assoc :params params)
                            success-event (assoc :handler
                                                 #(rf/dispatch
                                                    (conj success-event
@@ -93,6 +94,12 @@
            :fsc/list fscs
            :fsc/loading? false)))
 
+(rf/reg-event-db
+  :fsc/set-fsc-page-data
+  (fn [db [_ fsc]]
+    (assoc db
+           :fsc/fsc-page-data fsc)))
+
 (comment (rf/dispatch [:fsc/load]))
 
 (rf/reg-event-db
@@ -118,6 +125,14 @@
                 :success-event [:fsc/set]
                 :error-event   [:errors/set]
                 :success-path  [:fuel-surcharges]}}))
+
+(rf/reg-event-fx
+  :fsc/load-fsc-page-data
+  (fn [{:keys [db]} [_ id]]
+    {:ajax/get {:url           "/api/fuel-surcharge"
+                :params        {:id id}
+                :success-event [:fsc/set-fsc-page-data]
+                :error-event   [:errors/set]}}))
 
 (defn prices-row
   [{:keys [id market-id price currency]}]
@@ -174,6 +189,11 @@
         (->> fscs
              (filter (comp #{id} :id))
              first)))))
+
+(rf/reg-sub
+  :fsc/selected-fsc-table
+  (fn [db _]
+    (-> db :fsc/fsc-page-data :table)))
 
 (rf/reg-event-db
   :user/subscribe

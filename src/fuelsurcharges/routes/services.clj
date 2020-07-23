@@ -50,13 +50,18 @@
              {:url    "/api/swagger.json"
               :config {:validator-url nil}})}]]
 
-   ["/ping"
-    {:get (constantly (ok {:message "pong"}))}]
-
    ["/markets"
     {:get
      (fn [_]
        (ok {:markets (markets/markets-list)}))}]
+
+   ["/fuel-surcharge"
+    {:get
+     {:responses  {200 {:body {:table [{:price            number?
+                                        :surcharge-amount number?}]}}}
+      :parameters {:query {:id int?}}
+      :handler    (fn [{{{:keys [id]} :query} :parameters}]
+                    (ok {:table (db/get-current-fuel-surcharge-table-rows {:id id})}))}}]
 
    ["/fuel-surcharges"
     {:get
