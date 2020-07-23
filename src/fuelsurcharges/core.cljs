@@ -46,25 +46,29 @@
 (defn format-pct [n]
   (gstring/format "%.2f%%" (* 100 n)))
 
-(defn subscribe []
+(defn scroll-to-top! []
+  (js/scrollTo 0 0))
+
+(defn subscribe [msg]
   (let [email (r/atom "")]
     (fn []
-      [:div.v-box.justify-center.m-10.p-10.text-center {:style {:background-color "#EEE"}}
-       [:div.m-5
-        [:h1.text-xl.font-bold "Sign up for weekly updates"]
-        [:p "Get weekly fuel surcharge updates, right to your inbox."]]
-       [:input.m-5.text-gray-500.font-bold.p-1
-        {:type        "email"
-         :value       @email
-         :placeholder "Enter your email..."
-         :on-change   #(reset! email (-> % .-target .-value))}]
-       [:div.h-box.justify-center
-        [:button.m-5.text-white.font-bold.p-2.w-auto.rounded
-         {:style    {:background-color "#024"}
-          :on-click #(do
-                       (rf/dispatch [:user/subscribe @email])
-                       (reset! email ""))}
-         "Subscribe now"]]])))
+      [:div.h-box.justify-center.p-10.text-center {:style {:background-color "#EEE"}}
+       [:div.v-box
+        [:div.m-5
+         [:h1.text-2xl.font-bold msg]
+         [:p "Get weekly updates, right to your inbox."]]
+        [:input.m-5.text-gray-500.font-bold.p-1
+         {:type        "email"
+          :value       @email
+          :placeholder "Enter your email..."
+          :on-change   #(reset! email (-> % .-target .-value))}]
+        [:div.h-box.justify-center
+         [:button.m-5.text-white.font-bold.p-2.w-auto.rounded
+          {:style    {:background-color "#024"}
+           :on-click #(do
+                        (rf/dispatch [:user/subscribe @email])
+                        (reset! email ""))}
+          "Subscribe now"]]]])))
 
 (defn home-page []
   (let [markets-loading? @(rf/subscribe [:markets/loading?])
@@ -102,7 +106,7 @@
                   [:tr.border-b
                    [:td {:style {:width "20rem"}}
                     [:v-box
-                     [:a.w-auto.text-left {:href (rtfe/href :market {:id (:id market)})}
+                     [:a.w-auto.text-left.underline {:href (rtfe/href :market {:id (:id market)})}
                       (:market-name market)]
                      [:a.text-xs.text-gray-500.block {:href "https://www.eia.gov/petroleum/gasdiesel/"} "SOURCE: EIA.GOV"]]]
                    [:td.text-center.p-2
@@ -157,7 +161,7 @@
                   [:tr.border-b
                    [:td {:style {:width "20rem"}}
                     [:v-box
-                     [:a.w-auto.text-left {:href (rtfe/href :fsc {:id (:id fsc)})}
+                     [:a.w-auto.text-left.underline {:href (rtfe/href :fsc {:id (:id fsc)})}
                       (str (:company-name fsc) " " (:name fsc))]
                      [:a.text-xs.text-gray-500.block {:href (:source-url fsc)} (str "SOURCE: " (string/upper-case (:company-name fsc)) ".COM")]]]
                    [:td.text-center.p-2
@@ -182,10 +186,7 @@
                    [:td.w-0.md:p-2.invisible.md:visible
                     [:div.w-0.md:w-40.md:p-2
                      [:svg.inline-block {:viewBox [0 0 width height]}
-                      [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])))]]]])]
-     [:div.h-box.justify-center
-      (when (not (or fsc-loading? markets-loading?))
-        [subscribe])]]))
+                      [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])))]]]])]]))
 
 (defn market-page []
   (let [market @(rf/subscribe [:markets/selected])]
@@ -262,9 +263,7 @@
              [:td.text-center.p-2 {:style {:width "25%"}}
               [:v-box.justify-center
                [:h-box
-                [:p.inline-block (gstring/format "%.3f" (:price price))]]]]])]]]
-       [:div.h-box.justify-center
-        [subscribe]]]]]))
+                [:p.inline-block (gstring/format "%.3f" (:price price))]]]]])]]]]]]))
 
 (defn indices [pred coll]
   (keep-indexed #(when (pred %2) %1) coll))
@@ -299,6 +298,7 @@
           (gstring/format "%.3f" price)]
          [:td.p-1 row-style
           (format-pct surcharge-amount)]]))]])
+
 
 (defn fsc-page []
   (let [fsc               @(rf/subscribe [:fsc/selected-fsc])
@@ -346,9 +346,7 @@
              [:td.text-center.p-2 {:style {:width "25%"}}
               [:v-box
                [:h-box
-                [:p.inline-block (format-pct (:surcharge-amount price))]]]]])]]]
-       [:div.h-box.justify-center
-        [subscribe]]]]]))
+                [:p.inline-block (format-pct (:surcharge-amount price))]]]]])]]]]]]))
 
 (defn header []
   [:header.h-box.h-16.justify-center.items-center {:style {:background-color "#024"}}
@@ -364,6 +362,7 @@
   (fn []
     [:div.v-box
      [header]
+     [subscribe "Track your fuel surcharges"]
      [page]
      [footer]]))
 
@@ -406,6 +405,7 @@
 
 (defn current-page []
   (let [current-route @(rf/subscribe [:app/route])]
+    (scroll-to-top!)
     [:div
      (when current-route
        [(-> current-route :data :view)])]))

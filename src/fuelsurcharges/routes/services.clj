@@ -67,16 +67,7 @@
     {:get
      (fn [_]
        (ok {:fuel-surcharges (fsc/get-fuel-surcharges-history)}))}]
-   ;; {:get
-   ;;  {:responses
-   ;;   {200 {:body
-   ;;         {:messages
-   ;;          [{:id        pos-int? ;;            :name      string?
-   ;;            :message   string?
-   ;;            :timestamp inst?}]}}}
-   ;;   :handler
-   ;;   (fn [_]
-   ;;     (ok (msg/message-list)))}}]
+
    ["/market-prices"
     {:get
      (fn [_]
