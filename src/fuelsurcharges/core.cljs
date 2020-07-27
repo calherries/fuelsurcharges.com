@@ -56,7 +56,7 @@
        [:div.v-box
         [:div.m-5
          [:h1.text-2xl.font-bold msg]
-         [:p "Get weekly updates, right to your inbox."]]
+         [:p "Get weekly fuel price updates, right to your inbox."]]
         [:input.m-5.text-gray-500.font-bold.p-1
          {:type        "email"
           :value       @email

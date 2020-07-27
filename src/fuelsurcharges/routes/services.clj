@@ -9,11 +9,15 @@
    [reitit.ring.middleware.parameters :as parameters]
    [fuelsurcharges.middleware.formats :as formats]
    [fuelsurcharges.middleware.exception :as exception]
+   [fuelsurcharges.validation :as validation]
    [fuelsurcharges.markets :as markets]
    [fuelsurcharges.fuel-surcharges :as fsc]
    [ring.util.http-response :refer :all]
    [fuelsurcharges.db.core :as db]
    [clojure.java.io :as io]))
+
+(defn ok-body [body]
+  {200 {:body body}})
 
 (defn service-routes []
   ["/api"
@@ -52,21 +56,25 @@
 
    ["/markets"
     {:get
-     (fn [_]
-       (ok {:markets (markets/markets-list)}))}]
+     {:summary   "get all markets and their price data"
+      :responses (ok-body {:markets list?})
+      :handler   (fn [_]
+                   (ok {:markets (markets/markets-list)}))}}]
 
    ["/fuel-surcharge"
     {:get
-     {:responses  {200 {:body {:table [{:price            number?
-                                        :surcharge-amount number?}]}}}
+     {:summary    "get a fuel surcharge rate table"
+      :responses  (ok-body {:table [{:price            number?
+                                     :surcharge-amount number?}]})
       :parameters {:query {:id int?}}
       :handler    (fn [{{{:keys [id]} :query} :parameters}]
                     (ok {:table (db/get-current-fuel-surcharge-table-rows {:id id})}))}}]
 
    ["/fuel-surcharges"
     {:get
-     (fn [_]
-       (ok {:fuel-surcharges (fsc/get-fuel-surcharges-history)}))}]
+     {:summary "get all fuel surcharges and their price history"
+      :handler (fn [_]
+                 (ok {:fuel-surcharges (fsc/get-fuel-surcharges-history)}))}}]
 
    ["/market-prices"
     {:get
