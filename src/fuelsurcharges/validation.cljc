@@ -1,2 +1,2 @@
 (ns fuelsurcharges.validation
-  (:require [struct.core :as st]))
+  (:require [malli.core :as m]))

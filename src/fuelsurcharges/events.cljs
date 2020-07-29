@@ -134,10 +134,6 @@
                 :success-event [:fsc/set-fsc-page-data]
                 :error-event   [:errors/set]}}))
 
-(defn prices-row
-  [{:keys [id market-id price currency]}]
-  (price))
-
 (rf/reg-sub
   :db
   (fn [db _]
@@ -176,7 +172,7 @@
     (when (#{:market} (-> route :data :name))
       (let [id (-> route :parameters :path :id)]
         (->> fscs
-             (filter (comp #{id} :id))
+             (filter (comp #{id} :market/id))
              first)))))
 
 (rf/reg-sub

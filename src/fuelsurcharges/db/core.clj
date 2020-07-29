@@ -10,10 +10,13 @@
    [mount.core :refer [defstate]]
    [camel-snake-kebab.core :as csk]
    [camel-snake-kebab.extras :as cske]
+   [gungnir.changeset :refer [changeset]]
+   [gungnir.database :refer [make-datasource! *database*]]
+   [gungnir.query :as q]
+   [gungnir.model :refer [register!]]
    [clojure.walk :as walk]
    [hugsql.adapter :as hsqla]
    [hugsql.core :as hsqlc])
-
   (:import [org.postgresql.util PGobject]
            [java.time LocalDate]))
 
@@ -26,6 +29,9 @@
   :stop (conman/disconnect! *db*))
 
 (conman/bind-connection *db* "sql/queries.sql")
+
+(defstate datasource
+  :start (do (make-datasource! (env :datasource-opts))))
 
 (defn pgobj->clj [^org.postgresql.util.PGobject pgobj]
   (let [type  (.getType pgobj)

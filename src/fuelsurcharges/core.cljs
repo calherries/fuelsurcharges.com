@@ -93,32 +93,31 @@
            [:tbody
             (doall
               (for [market @(rf/subscribe [:markets/markets])]
-                (let [prices            (:prices market)
+                (let [prices            (:market/prices market)
                       width             300
                       height            100
-                      points            (price-points-str (take-last 52 (map :price prices)) width height)
+                      points            (price-points-str (take-last 52 (map :market-price/price prices)) width height)
                       current-price     (->> prices last)
                       previous-price    (->> prices (take-last 2) first)
-                      change            (- (:price current-price) (:price previous-price))
-                      percentage-change (/ change (:price previous-price))
-                      ]
-                  ^{:key (:id market)}
+                      change            (- (:market-price/price current-price) (:market-price/price previous-price))
+                      percentage-change (/ change (:market-price/price previous-price))]
+                  ^{:key (:market/id market)}
                   [:tr.border-b
                    [:td {:style {:width "20rem"}}
                     [:v-box
-                     [:a.w-auto.text-left.underline {:href (rtfe/href :market {:id (:id market)})}
-                      (:market-name market)]
+                     [:a.w-auto.text-left.underline {:href (rtfe/href :market {:id (:market/id market)})}
+                      (:market/market-name market)]
                      [:a.text-xs.text-gray-500.block {:href "https://www.eia.gov/petroleum/gasdiesel/"} "SOURCE: EIA.GOV"]]]
                    [:td.text-center.p-2
                     [:v-box.justify-center
                      [:h-box
-                      [:p.inline-block (str (:price previous-price))]]
-                     [:p.text-xs.text-gray-500 (unparse-date (:price-date previous-price))]]]
+                      [:p.inline-block (str (:market-price/price previous-price))]]
+                     [:p.text-xs.text-gray-500 (unparse-date (:market-price/price-date previous-price))]]]
                    [:td.text-center.p-2
                     [:v-box
                      [:h-box
-                      [:p.inline-block (str (:price current-price))]]
-                     [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
+                      [:p.inline-block (str (:market-price/price current-price))]]
+                     [:p.text-xs.text-gray-500 (unparse-date (:market-price/price-date current-price))]]]
                    [:td.text-center.p-2
                     [:v-box
                      [:h-box
@@ -188,6 +187,7 @@
                      [:svg.inline-block {:viewBox [0 0 width height]}
                       [:polyline {:points points :stroke "#024" :fill "none" :stroke-width 3}]]]]])))]]]])]]))
 
+
 (defn market-page []
   (let [market @(rf/subscribe [:markets/selected])]
     [:div.v-box
@@ -195,7 +195,7 @@
       [:div.v-box.justify-center.w-auto.items-center
        [:div.h-box.my-5.underline.text-gray-700
         [:a {:href (rtfe/href :home)} "← BACK"]]
-       [:div>h2.text-2xl.font-bold (:market-name market)]
+       [:div>h2.text-2xl.font-bold (:market/market-name market)]
        [:div.v-box.mt-5
         [:table.m-2
          [:thead.border-b
@@ -208,16 +208,16 @@
            [:th.text-center.p-2 "This Week"]
            [:th.text-center.p-2 "Change"]]]
          [:tbody
-          (let [prices            (:prices market)
+          (let [prices            (:market/prices market)
                 width             300
                 height            100
-                points            (price-points-str (take-last 52 (map :price prices)) width height)
+                points            (price-points-str (take-last 52 (map :market-price/price prices)) width height)
                 current-price     (->> prices last)
                 previous-price    (->> prices (take-last 2) first)
-                change            (- (:price current-price) (:price previous-price))
-                percentage-change (/ change (:price previous-price))
+                change            (- (:market-price/price current-price) (:market-price/price previous-price))
+                percentage-change (/ change (:market-price/price previous-price))
                 ]
-            ^{:key (:id market)}
+            ^{:key (:market/id market)}
             [:tr.border-b
              [:td.text-center
               [:v-box.justify-center
@@ -225,13 +225,13 @@
              [:td.text-center.p-2
               [:v-box.justify-center
                [:h-box
-                [:p.inline-block (str (:price previous-price))]]
-               [:p.text-xs.text-gray-500 (unparse-date (:price-date previous-price))]]]
+                [:p.inline-block (str (:market-price/price previous-price))]]
+               [:p.text-xs.text-gray-500 (unparse-date (:market-price/price-date previous-price))]]]
              [:td.text-center.p-2
               [:v-box
                [:h-box
-                [:p.inline-block (str (:price current-price))]]
-               [:p.text-xs.text-gray-500 (unparse-date (:price-date current-price))]]]
+                [:p.inline-block (str (:market-price/price current-price))]]
+               [:p.text-xs.text-gray-500 (unparse-date (:market-price/price-date current-price))]]]
              [:td.text-center.p-2
               [:v-box
                [:h-box
@@ -253,17 +253,17 @@
            [:th.text-center "End Date"]
            [:th.text-center.p-2 "Fuel Price"]]]
          [:tbody
-          (for [price (reverse (:prices market))]
+          (for [price (reverse (:market/prices market))]
             ^{:key (gen-key)}
             [:tr.border-b.text-center
              [:td {:style {:width "25%"}}
-              (tf/unparse (tf/formatter "MMM d, yyyy") (:price-date price))]
+              (tf/unparse (tf/formatter "MMM d, yyyy") (:market-price/price-date price))]
              [:td {:style {:width "25%"}}
-              (tf/unparse (tf/formatter "MMM d, yyyy") (t/plus (:price-date price) (t/days 7)))]
+              (tf/unparse (tf/formatter "MMM d, yyyy") (t/plus (:market-price/price-date price) (t/days 7)))]
              [:td.text-center.p-2 {:style {:width "25%"}}
               [:v-box.justify-center
                [:h-box
-                [:p.inline-block (gstring/format "%.3f" (:price price))]]]]])]]]]]]))
+                [:p.inline-block (gstring/format "%.3f" (:market-price/price price))]]]]])]]]]]]))
 
 (defn indices [pred coll]
   (keep-indexed #(when (pred %2) %1) coll))

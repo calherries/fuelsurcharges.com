@@ -3,6 +3,7 @@
    [reitit.swagger :as swagger]
    [reitit.swagger-ui :as swagger-ui]
    [reitit.ring.coercion :as coercion]
+   [reitit.coercion.malli :as malli-coercion]
    [reitit.coercion.spec :as spec-coercion]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.multipart :as multipart]
@@ -10,9 +11,10 @@
    [fuelsurcharges.middleware.formats :as formats]
    [fuelsurcharges.middleware.exception :as exception]
    [fuelsurcharges.validation :as validation]
-   [fuelsurcharges.markets :as markets]
+   [fuelsurcharges.market :as market]
    [fuelsurcharges.fuel-surcharges :as fsc]
    [ring.util.http-response :refer :all]
+   [malli.core :as m]
    [fuelsurcharges.db.core :as db]
    [clojure.java.io :as io]))
 
@@ -56,10 +58,17 @@
 
    ["/markets"
     {:get
-     {:summary   "get all markets and their price data"
-      :responses (ok-body {:markets list?})
-      :handler   (fn [_]
-                   (ok {:markets (markets/markets-list)}))}}]
+     {:summary "get all markets and their price data"
+      ;; :responses (ok-body {:markets [:vector
+      ;;                                [:map
+      ;;                                 [:prices
+      ;;                                  [:list
+      ;;                                   [:map [:market-id int?] [:price double?] [:price-date any?]]]]
+      ;;                                 [:id int?]
+      ;;                                 [:market-name string?]
+      ;;                                 [:source-name string?]]]})
+      :handler (fn [_]
+                 (ok {:markets (market/markets-list)}))}}]
 
    ["/fuel-surcharge"
     {:get
@@ -78,5 +87,6 @@
 
    ["/market-prices"
     {:get
-     (fn [_]
-       (ok (markets/market-prices-list)))}]])
+     {:summary "get all market prices"
+      :handler (fn [_]
+                 (ok (market/get-last-year-market-prices)))}}]])

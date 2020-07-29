@@ -23,7 +23,7 @@
                  [markdown-clj "1.10.4"]
                  [metosin/jsonista "0.2.6"]
                  [metosin/muuntaja "0.6.7"]
-                 [metosin/reitit "0.5.2"]
+                 [metosin/reitit "0.5.5"]
                  [metosin/ring-http-response "0.9.1"]
                  [mount "0.1.16"]
                  [nrepl "0.7.0"]
@@ -48,10 +48,14 @@
                  [ring/ring-core "1.8.1"]
                  [ring/ring-defaults "0.3.2"]
                  [selmer "1.12.27"]
+                 [metosin/malli "0.0.1-SNAPSHOT"]
                  [missionary "b.17"]
+                 [seancorfield/next.jdbc "1.1.569"]
+                 [kwrooijen/gungnir "0.0.1-SNAPSHOT"]
                  [dk.ative/docjure "1.14.0"]
                  [district0x.re-frame/google-analytics-fx "1.0.0"]
                  [metasoarous/oz "1.6.0-alpha6"]
+                 [orchestra "2020.07.12-1"]
                  [thheller/shadow-cljs "2.9.2" :scope "provided"]]
 
   :min-lein-version "2.0.0"
