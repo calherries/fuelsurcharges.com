@@ -2,14 +2,18 @@
   (:require   [gungnir.query :as q]
               [orchestra.core :refer [defn-spec]]
               [orchestra.spec.test :as st]
-              [gungnir.model]
+              [gungnir.model :as model]
               [malli.core :as m]
               [honeysql.core :as sql]
               [fuelsurcharges.db.core :as db]
+              [clojure.pprint :as pp]
+              [malli.util :as mu]
               [gungnir.record :refer [model table]]
-              [fuelsurcharges.db.models :refer [register-models] :as models]
+              [fuelsurcharges.db.models :refer [register-models]]
               [java-time :as t]))
 
+(comment (model/find :market))
+(comment (model/find :market-price))
 (comment (q/all! :market))
 (comment (st/instrument))
 
@@ -26,10 +30,10 @@
 
 (def market-prices-list-schema
   [:sequential
-   [:map
-    [:market-price/market-id int?]
-    [:market-price/price-date any?]
-    [:market-price/price double?]]])
+   (-> (model/find :market-price)
+       (mu/select-keys [:market-price/market-id
+                        :market-price/price-date
+                        :market-price/price]))])
 
 (defn-spec get-last-year-market-prices (m/validator market-prices-list-schema)
   []
@@ -43,19 +47,20 @@
 
 (def markets-list-schema
   [:sequential
-   [:map
-    [:market/id int?]
-    [:market/market-name any?]
-    [:market/source-name any?]
-    [:market/prices any?]]])
+   (-> (model/find :market)
+       (mu/select-keys [:market/id
+                        :market/market-name
+                        :market/source-name])
+       (mu/assoc :market/prices any?))])
 
 (defn-spec markets-list (m/validator markets-list-schema)
   []
   (let [prices (get-last-year-market-prices)]
     (->> (get-markets)
-         (map #(select-keys % [:market/id :market/market-name :market/source-name :market/price]))
+         (map #(select-keys % [:market/id
+                               :market/market-name
+                               :market/source-name]))
          (map #(assoc % :market/prices (filter (comp #{(:market/id %)} :market-price/market-id) prices))))))
 
-(comment (first (market-prices-list)))
 (comment (m/explain markets-list-schema (markets-list)))
 (comment (m/explain market-prices-list-schema (get-last-year-market-prices)))

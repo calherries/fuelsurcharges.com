@@ -56,7 +56,7 @@
                  [district0x.re-frame/google-analytics-fx "1.0.0"]
                  [metasoarous/oz "1.6.0-alpha6"]
                  [orchestra "2020.07.12-1"]
-                 [thheller/shadow-cljs "2.9.2" :scope "provided"]]
+                 [thheller/shadow-cljs "2.10.18"]]
 
   :min-lein-version "2.0.0"
 
@@ -98,7 +98,7 @@
                                 [jonase/eastwood "0.3.5"]]
 
 
-                 :source-paths   ["env/dev"  "env/dev" "test" ]
+                 :source-paths   ["env/dev" "test"]
                  :resource-paths ["env/dev/resources"]
                  :repl-options   {:init-ns user
                                   :timeout 120000}

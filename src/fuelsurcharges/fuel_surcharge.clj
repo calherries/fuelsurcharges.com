@@ -1,4 +1,4 @@
 (ns fuelsurcharges.fuel-surcharge
-  (:require [fuelsurcharges.db :refer [datasource]]))
+  (:require [fuelsurcharges.db.models :refer [register-models]]))
 
 (def fuel-surcharge [])
