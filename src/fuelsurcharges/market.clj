@@ -1,15 +1,14 @@
 (ns fuelsurcharges.market
   (:require   [gungnir.query :as q]
+              [gungnir.database :as gd]
               [orchestra.core :refer [defn-spec]]
               [orchestra.spec.test :as st]
               [gungnir.model :as model]
               [malli.core :as m]
               [honeysql.core :as sql]
-              [fuelsurcharges.db.core :as db]
-              [clojure.pprint :as pp]
               [malli.util :as mu]
               [gungnir.record :refer [model table]]
-              [fuelsurcharges.db.models :refer [register-models]]
+              [fuelsurcharges.db.models :refer [register-models] :as models]
               [java-time :as t]))
 
 (comment (model/find :market))
@@ -20,7 +19,7 @@
 (defn select-all [table]
   (-> (q/select :*)
       (q/from table)
-      (q/query!)))
+      (gd/query!)))
 
 (defn get-markets []
   (select-all :market))
@@ -30,7 +29,7 @@
 
 (def market-prices-list-schema
   [:sequential
-   (-> (model/find :market-price)
+   (-> models/market-price-model
        (mu/select-keys [:market-price/market-id
                         :market-price/price-date
                         :market-price/price]))])
@@ -43,11 +42,11 @@
         :market-price/price)
       (q/from :market-price)
       (q/where [:> :market-price/price-date (sql/raw ["now() - interval '1 year' - interval '2 week'"])])
-      (q/query!)))
+      (gd/query!)))
 
 (def markets-list-schema
   [:sequential
-   (-> (model/find :market)
+   (-> models/market-model
        (mu/select-keys [:market/id
                         :market/market-name
                         :market/source-name])

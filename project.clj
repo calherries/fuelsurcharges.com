@@ -47,11 +47,11 @@
                  [ring-webjars "0.2.0"]
                  [ring/ring-core "1.8.1"]
                  [ring/ring-defaults "0.3.2"]
+                 [kwrooijen/gungnir "da90f233416bd810a3b8310edb07f942b7420c8b"]
                  [selmer "1.12.27"]
                  [metosin/malli "0.0.1-SNAPSHOT"]
                  [missionary "b.17"]
                  [seancorfield/next.jdbc "1.1.569"]
-                 [kwrooijen/gungnir "0.0.1-SNAPSHOT"]
                  [dk.ative/docjure "1.14.0"]
                  [district0x.re-frame/google-analytics-fx "1.0.0"]
                  [metasoarous/oz "1.6.0-alpha6"]
@@ -66,7 +66,10 @@
   :target-path "target/%s/"
   :main ^:skip-aot fuelsurcharges.core
 
-  :plugins [[lein-shadow "0.2.0"]]
+  :plugins [[lein-shadow "0.2.1"]
+            [reifyhealth/lein-git-down "0.3.7"]]
+  :middleware [lein-git-down.plugin/inject-properties]
+  :repositories [["public-github" {:url "git://github.com"}]]
   :clean-targets ^{:protect false} [:target-path "target/cljsbuild" ".shadow-cljs"]
 
   :profiles
