@@ -1,4 +1,4 @@
-CREATE TABLE fuel_surcharge_table_rows (
+CREATE TABLE fuel_surcharge_table_row (
   id SERIAL PRIMARY KEY,
   fuel_surcharge_table_id INTEGER REFERENCES fuel_surcharge_tables(id),
   price DOUBLE PRECISION not null,

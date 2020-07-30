@@ -1,1 +1,1 @@
-DROP TABLE dim_market;
+DROP TABLE market;

@@ -1,4 +1,4 @@
-CREATE TABLE dim_market
+CREATE TABLE market
   (id SERIAL PRIMARY KEY,
   market_name text not null,
   source_name text not null,

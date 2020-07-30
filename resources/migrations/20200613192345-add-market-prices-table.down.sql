@@ -1,1 +1,1 @@
-DROP TABLE market_prices;
+DROP TABLE market_price;

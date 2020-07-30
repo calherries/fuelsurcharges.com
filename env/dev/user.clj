@@ -75,6 +75,7 @@
 (comment (start))
 (comment (restart))
 (comment (pending))
+(comment (reset-db))
 (comment (migrate))
 (comment (migrate "20200701123614"))
 (comment (destroy "202007011158"))

@@ -1,4 +1,4 @@
-CREATE TABLE fuel_surcharge_tables (
+CREATE TABLE fuel_surcharge_table (
   id SERIAL PRIMARY KEY,
   fuel_surcharge_id INTEGER REFERENCES fuel_surcharges(id),
   valid_at DATE not null DEFAULT date '1900-01-01',

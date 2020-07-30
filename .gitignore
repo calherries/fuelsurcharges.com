@@ -14,3 +14,4 @@ profiles.clj
 /.shadow-cljs
 /node_modules
 /log
+/bin

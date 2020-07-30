@@ -1,4 +1,4 @@
-CREATE TABLE fuel_surcharges (
+CREATE TABLE fuel_surcharge (
   id SERIAL PRIMARY KEY,
   market_id INTEGER REFERENCES dim_market(id),
   name text not null,

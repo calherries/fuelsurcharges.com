@@ -1,1 +1,1 @@
-DROP TABLE fuel_surcharge_table_rows;
+DROP TABLE fuel_surcharge_table_row;

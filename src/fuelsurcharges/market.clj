@@ -61,5 +61,6 @@
                                :market/source-name]))
          (map #(assoc % :market/prices (filter (comp #{(:market/id %)} :market-price/market-id) prices))))))
 
+(comment (get-markets))
 (comment (m/explain markets-list-schema (markets-list)))
 (comment (m/explain market-prices-list-schema (get-last-year-market-prices)))

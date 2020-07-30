@@ -1,4 +1,4 @@
-CREATE TABLE market_prices
+CREATE TABLE market_price
   (id SERIAL,
   market_id INTEGER REFERENCES dim_market(id),
   price_date DATE not null,

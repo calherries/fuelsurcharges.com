@@ -1,1 +1,1 @@
-DROP TABLE fuel_surcharges;
+DROP TABLE fuel_surcharge;

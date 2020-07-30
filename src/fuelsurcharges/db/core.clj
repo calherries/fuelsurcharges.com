@@ -31,7 +31,8 @@
 (conman/bind-connection *db* "sql/queries.sql")
 
 (defstate datasource
-  :start (do (make-datasource! (env :datasource-opts))))
+  :start (do (make-datasource! {:jdbc-url (env :database-url)
+                                :adapter "postgresql"})))
 
 (defn pgobj->clj [^org.postgresql.util.PGobject pgobj]
   (let [type  (.getType pgobj)
