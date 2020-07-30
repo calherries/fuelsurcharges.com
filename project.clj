@@ -49,7 +49,7 @@
                  [ring/ring-defaults "0.3.2"]
                  [kwrooijen/gungnir "da90f233416bd810a3b8310edb07f942b7420c8b"]
                  [selmer "1.12.27"]
-                 [metosin/malli "0.0.1-SNAPSHOT"]
+                 [metosin/malli "81f38dda15e65efeda09e185d2938f298d4b6704"]
                  [missionary "b.17"]
                  [seancorfield/next.jdbc "1.1.569"]
                  [dk.ative/docjure "1.14.0"]
