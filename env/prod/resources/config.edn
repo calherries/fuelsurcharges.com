@@ -1,3 +1,2 @@
-{:prod       true
- :port       3000
- :nrepl-port 7000}
+{:prod true
+ :port 3000}

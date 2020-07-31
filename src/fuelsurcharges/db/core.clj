@@ -12,8 +12,10 @@
    [camel-snake-kebab.extras :as cske]
    [gungnir.changeset :refer [changeset]]
    [gungnir.database :refer [make-datasource! *database*]]
+   [clojure.java.jdbc :as jdbc]
    [gungnir.query :as q]
    [gungnir.model :refer [register!]]
+   [hikari-cp.core :as hikari-cp]
    [clojure.walk :as walk]
    [hugsql.adapter :as hsqla]
    [hugsql.core :as hsqlc])
@@ -22,17 +24,31 @@
 
 (defstate ^:dynamic *db*
   :start (if-let [jdbc-url (env :database-url)]
-           (conman/connect! {:jdbc-url jdbc-url})
-           (do
-             (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
-             *db*))
-  :stop (conman/disconnect! *db*))
+           (make-datasource! {:adapter  "postgresql"
+                              :jdbc-url jdbc-url
+                              :username "fuelsurcharges"})
+           (do (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
+               *db*))
+  :stop (hikari-cp/close-datasource *db*))
+
+(comment (jdbc/with-db-connection [conn {:datasource *database*}]
+           (let [rows (jdbc/query conn "SELECT table_name FROM information_schema.tables where table_schema = 'public'")]
+             (println rows))))
 
 (conman/bind-connection *db* "sql/queries.sql")
 
-(defstate datasource
-  :start (do (make-datasource! {:jdbc-url (env :database-url)
-                                :adapter "postgresql"})))
+(defstate ^:dynamic datasource
+  :start (if-let [jdbc-url (env :database-url)]
+           (make-datasource! {:jdbc-url jdbc-url
+                              :adapter  "postgresql"})
+           (do
+             (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
+             *database*))
+  :stop (conman/disconnect! *database*))
+
+(comment (jdbc/with-db-connection [conn {:datasource *database*}]
+           (let [rows (jdbc/query conn "SELECT table_name FROM information_schema.tables where table_schema = 'public'")]
+             (println rows))))
 
 (defn pgobj->clj [^org.postgresql.util.PGobject pgobj]
   (let [type  (.getType pgobj)

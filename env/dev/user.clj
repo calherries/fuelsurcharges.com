@@ -74,6 +74,7 @@
 
 (comment (start))
 (comment (restart))
+(comment (stop))
 (comment (pending))
 (comment (reset-db))
 (comment (migrate))

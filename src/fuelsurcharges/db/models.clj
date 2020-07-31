@@ -1,9 +1,11 @@
 (ns fuelsurcharges.db.models
   (:require
-   [fuelsurcharges.db.core :refer [datasource]]
+   [fuelsurcharges.db.core :refer [datasource] :as db]
    [java-time :as t]
    [mount.core :refer [defstate]]
+   [gungnir.database :as gd]
    [gungnir.query :as q]
+   [honeysql.core :as sql]
    [gungnir.model :refer [register!]]))
 
 (def market-model
@@ -29,3 +31,8 @@
   (register!
     {:market       market-model
      :market-price market-price-model}))
+
+(defn select-all [table]
+  (-> (q/select :*)
+      (q/from table)
+      (sql/format)))
