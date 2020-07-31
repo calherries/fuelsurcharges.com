@@ -17,7 +17,6 @@
    [clj-bonecp-url.core :refer [parse-url]]
    [gungnir.model :refer [register!]]
    [hikari-cp.core :as hikari-cp]
-   [clojure.string :as str]
    [clojure.walk :as walk]
    [hugsql.adapter :as hsqla]
    [hugsql.core :as hsqlc])
@@ -28,7 +27,9 @@
 (defstate ^:dynamic *db*
   :start (if-let [database-url (env :database-url)]
            (conman/connect! (if (str/starts-with? "postgres:" database-url)
-                              (parse-url database-url)
+                              (-> (parse-url database-url)
+                                  (dissoc :adapter)
+                                  (assoc :subprotocol "postgresql"))
                               {:adapter  "postgresql"
                                :jdbc-url database-url
                                :username "fuelsurcharges"}))
@@ -36,10 +37,14 @@
                *db*))
   :stop (conman/disconnect! *db*))
 
+(comment (parse-url "postgres://bysirxuvdtwjzx:62fab1b4ac76f95f7e1ebcad8e9553acad3db5ad2344bee7acc728eebcb2e583@ec2-34-200-15-192.compute-1.amazonaws.com:5432/data0ffmp4tp02"))
+
 (defstate ^:dynamic datasource
   :start (if-let [database-url (env :database-url)]
            (make-datasource! (if (str/starts-with? "postgres:" database-url)
-                               (parse-url database-url)
+                               (-> (parse-url database-url)
+                                   (dissoc :adapter)
+                                   (assoc :subprotocol "postgresql"))
                                {:adapter  "postgresql"
                                 :jdbc-url database-url
                                 :username "fuelsurcharges"}))

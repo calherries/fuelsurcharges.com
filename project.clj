@@ -102,7 +102,7 @@
                  :source-paths   ["env/dev" "test"]
                  :resource-paths ["env/dev/resources"]
                  :repl-options   {:init-ns user
-                                  :timeout 120000}
+                                  :timeout 240000}
                  :injections     [(require 'pjstadig.humane-test-output)
                                   (pjstadig.humane-test-output/activate!)]}
    :project/test {:jvm-opts       ["-Dconf=test-config.edn" ]
