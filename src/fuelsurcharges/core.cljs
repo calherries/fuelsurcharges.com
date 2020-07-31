@@ -12,7 +12,6 @@
    [reitit.core :as rt]
    [reitit.frontend :as rtf]
    [reitit.coercion.spec :as rts]
-   [oz.core :as oz]
    [reitit.frontend.easy :as rtfe]
    [clojure.string :as string]
    [goog.string :as gstring]
