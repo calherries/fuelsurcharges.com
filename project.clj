@@ -23,6 +23,8 @@
                  [markdown-clj "1.10.4"]
                  [metosin/muuntaja "0.6.7"]
                  [clj-http "3.10.1"]
+                 [org.slf4j/slf4j-nop "1.7.2"]
+                 [clj-bonecp-url "0.1.1"]
                  [metosin/reitit "0.5.5"]
                  [metosin/ring-http-response "0.9.1"]
                  [mount "0.1.16"]

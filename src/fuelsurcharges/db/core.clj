@@ -14,34 +14,40 @@
    [gungnir.database :refer [make-datasource! *database*]]
    [clojure.java.jdbc :as jdbc]
    [gungnir.query :as q]
+   [clj-bonecp-url.core :refer [parse-url]]
    [gungnir.model :refer [register!]]
    [hikari-cp.core :as hikari-cp]
+   [clojure.string :as str]
    [clojure.walk :as walk]
    [hugsql.adapter :as hsqla]
    [hugsql.core :as hsqlc])
   (:import [org.postgresql.util PGobject]
-           [java.time LocalDate]))
-
+           [java.time LocalDate]
+           java.net.URI))
 
 (defstate ^:dynamic *db*
-  :start (if-let [jdbc-url (env :database-url)]
-           (conman/connect! {:adapter  "postgresql"
-                             :jdbc-url jdbc-url
-                             :username "fuelsurcharges"})
+  :start (if-let [database-url (env :database-url)]
+           (conman/connect! (if (str/starts-with? "postgres:" database-url)
+                              (parse-url "postgres://bysirxuvdtwjzx:62fab1b4ac76f95f7e1ebcad8e9553acad3db5ad2344bee7acc728eebcb2e583@ec2-34-200-15-192.compute-1.amazonaws.com:5432/data0ffmp4tp02")
+                              {:adapter  "postgresql"
+                               :jdbc-url database-url
+                               :username "fuelsurcharges"}))
            (do (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
                *db*))
   :stop (conman/disconnect! *db*))
 
 (defstate ^:dynamic datasource
-  :start (if-let [jdbc-url (env :database-url)]
-           (make-datasource! {:adapter  "postgresql"
-                              :jdbc-url jdbc-url
-                              :username "fuelsurcharges"})
+  :start (if-let [database-url (env :database-url)]
+           (make-datasource! (if (str/starts-with? "postgres:" database-url)
+                               (parse-url "postgres://bysirxuvdtwjzx:62fab1b4ac76f95f7e1ebcad8e9553acad3db5ad2344bee7acc728eebcb2e583@ec2-34-200-15-192.compute-1.amazonaws.com:5432/data0ffmp4tp02")
+                               {:adapter  "postgresql"
+                                :jdbc-url database-url
+                                :username "fuelsurcharges"}))
            (do (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
                *database*))
   :stop (hikari-cp/close-datasource *database*))
 
-(comment (jdbc/with-db-connection [conn {:datasource *db*}]
+(comment (jdbc/with-db-connection [conn {:datasource *database*}]
            (let [rows (jdbc/query conn "SELECT table_name FROM information_schema.tables where table_schema = 'public'")]
              (println rows))))
 
