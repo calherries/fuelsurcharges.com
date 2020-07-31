@@ -41,7 +41,7 @@
 
 (defstate ^:dynamic datasource
   :start (if-let [database-url (env :database-url)]
-           (make-datasource! (if (str/starts-with? "postgres:" database-url)
+           (make-datasource! (if (clojure.string/starts-with? "postgres:" database-url)
                                (-> (parse-url database-url)
                                    (dissoc :adapter)
                                    (assoc :subprotocol "postgresql"))
