@@ -2,14 +2,15 @@
   "Userspace functions you can run by default in your local REPL."
   (:require
    [fuelsurcharges.config :refer [env]]
-    [clojure.pprint]
-    [clojure.spec.alpha :as s]
-    [expound.alpha :as expound]
-    [mount.core :as mount]
-    [fuelsurcharges.core :refer [start-app]]
-    [fuelsurcharges.db.core]
-    [conman.core :as conman]
-    [luminus-migrations.core :as migrations]))
+   [clojure.pprint]
+   [clojure.spec.alpha :as s]
+   [expound.alpha :as expound]
+   [mount.core :as mount]
+   [fuelsurcharges.core :refer [start-app]]
+   [fuelsurcharges.db.core]
+   [conman.core :as conman]
+   [eastwood.lint :refer [eastwood] :as e]
+   [luminus-migrations.core :as migrations]))
 
 (alter-var-root #'s/*explain-out* (constantly expound/printer))
 
@@ -84,3 +85,4 @@
 (comment (create-migration "fuel-surcharges-add-fuel-surcahrge-column"))
 (comment (create-migration "fuel-surcharge-tables"))
 (comment (create-migration "fuel-surcharge-table-rows"))
+(comment (eastwood))
