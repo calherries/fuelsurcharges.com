@@ -3,7 +3,6 @@
             [clojure.java.io]
             [clojure.tools.logging :as log]
             [java-time :as t]
-            [oz.core :as oz]
             [fuelsurcharges.db.core :as db]
             [dk.ative.docjure.spreadsheet :as ss]
             [missionary.core :as m]))
@@ -126,16 +125,3 @@
 (comment (db/insert-market-prices! {:market-prices (market-prices-insert 4 eia-spot-price-data "USD")}))
 (comment (db/insert-market-prices! {:market-prices (market-prices-insert 5 eia-gas-price-data "USD")}))
 (comment (map (fn [[k v]] [k (count v)]) (group-by :market-id (db/get-market-prices))))
-;; OZ
-(comment (oz/start-server!))
-
-(comment (def line-plot
-           {:title    "Price of automotive gas oil"
-            :mark     "line"
-            :data     {:values eia-price-data}
-            :encoding {:x {:field "date" :type "temporal"}
-                       :y {:field "price" :type "quantitative"}}
-            :width    800}))
-
-;; Render the plot
-(comment (oz/view! line-plot))
