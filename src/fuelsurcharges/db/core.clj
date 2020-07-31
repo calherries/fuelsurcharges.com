@@ -26,7 +26,7 @@
 
 (defstate ^:dynamic *db*
   :start (if-let [database-url (env :database-url)]
-           (conman/connect! (if (clojure.string/starts-with? "postgres:" database-url)
+           (conman/connect! (if (clojure.string/starts-with? database-url "postgres:")
                               (-> (parse-url database-url)
                                   (dissoc :adapter)
                                   (assoc :subprotocol "postgresql"))
@@ -37,11 +37,9 @@
                *db*))
   :stop (conman/disconnect! *db*))
 
-(comment (parse-url "postgres://bysirxuvdtwjzx:62fab1b4ac76f95f7e1ebcad8e9553acad3db5ad2344bee7acc728eebcb2e583@ec2-34-200-15-192.compute-1.amazonaws.com:5432/data0ffmp4tp02"))
-
 (defstate ^:dynamic datasource
   :start (if-let [database-url (env :database-url)]
-           (make-datasource! (if (clojure.string/starts-with? "postgres:" database-url)
+           (make-datasource! (if (clojure.string/starts-with? database-url "postgres:")
                                (-> (parse-url database-url)
                                    (dissoc :adapter)
                                    (assoc :subprotocol "postgresql"))
