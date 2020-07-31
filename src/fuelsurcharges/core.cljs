@@ -15,7 +15,6 @@
    [reitit.frontend.easy :as rtfe]
    [clojure.string :as string]
    [goog.string :as gstring]
-   [re-com.core :as rc :refer [h-box v-box box gap line]]
    [goog.string.format]
    [schema.core :as s]
    [cljs-time.core :as t]
