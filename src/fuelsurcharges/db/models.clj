@@ -35,4 +35,6 @@
 (defn select-all [table]
   (-> (q/select :*)
       (q/from table)
-      (sql/format)))
+      (gd/query!)))
+
+(comment (select-all :market))

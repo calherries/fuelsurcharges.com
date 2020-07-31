@@ -22,33 +22,30 @@
   (:import [org.postgresql.util PGobject]
            [java.time LocalDate]))
 
+
 (defstate ^:dynamic *db*
+  :start (if-let [jdbc-url (env :database-url)]
+           (conman/connect! {:adapter  "postgresql"
+                             :jdbc-url jdbc-url
+                             :username "fuelsurcharges"})
+           (do (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
+               *db*))
+  :stop (conman/disconnect! *db*))
+
+(defstate ^:dynamic datasource
   :start (if-let [jdbc-url (env :database-url)]
            (make-datasource! {:adapter  "postgresql"
                               :jdbc-url jdbc-url
                               :username "fuelsurcharges"})
            (do (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
-               *db*))
-  :stop (hikari-cp/close-datasource *db*))
+               *database*))
+  :stop (hikari-cp/close-datasource *database*))
 
-(comment (jdbc/with-db-connection [conn {:datasource *database*}]
+(comment (jdbc/with-db-connection [conn {:datasource *db*}]
            (let [rows (jdbc/query conn "SELECT table_name FROM information_schema.tables where table_schema = 'public'")]
              (println rows))))
 
 (conman/bind-connection *db* "sql/queries.sql")
-
-(defstate ^:dynamic datasource
-  :start (if-let [jdbc-url (env :database-url)]
-           (make-datasource! {:jdbc-url jdbc-url
-                              :adapter  "postgresql"})
-           (do
-             (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
-             *database*))
-  :stop (conman/disconnect! *database*))
-
-(comment (jdbc/with-db-connection [conn {:datasource *database*}]
-           (let [rows (jdbc/query conn "SELECT table_name FROM information_schema.tables where table_schema = 'public'")]
-             (println rows))))
 
 (defn pgobj->clj [^org.postgresql.util.PGobject pgobj]
   (let [type  (.getType pgobj)
