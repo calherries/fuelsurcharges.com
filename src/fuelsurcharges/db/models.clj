@@ -6,9 +6,12 @@
    [gungnir.database :as gd]
    [gungnir.query :as q]
    [honeysql.core :as sql]
+   [clojure.java.jdbc :as jdbc]
+   [malli.provider :as mp]
+   [malli.core :as m]
    [gungnir.model :refer [register!]]))
 
-(def market-model
+(def market
   [:map
    {:has-many {:market-price :market/market-prices}}
    [:market/id {:primary-key true} int?]
@@ -16,7 +19,7 @@
    [:market/source-name string?]
    [:market/created-at {:auto true} [:fn t/local-date-time?]]])
 
-(def market-price-model
+(def market-price
   [:map
    {:belongs-to {:market :market-price/market-id}}
    [:market-price/id {:primary-key true} int?]
@@ -26,15 +29,81 @@
    [:market-price/price-date [:fn t/local-date?]]
    [:market-price/created-at {:auto true} [:fn t/local-date-time?]]])
 
+(def fuel-surcharge
+  [:map
+   {:has-many {:fuel-surcharge-table :fuel-surcharge/fuel-surcharge-tables}}
+   [:fuel-surcharge/id int?]
+   [:fuel-surcharge/market-id int?]
+   [:fuel-surcharge/name string?]
+   [:fuel-surcharge/source-url string?]
+   [:fuel-surcharge/company-name string?]
+   [:fuel-surcharge/created-at [:fn t/local-date-time?]]])
+
+(def fuel-surcharge-table
+  [:map
+   {:belongs-to {:fuel-surcharge :fuel-surcharge-table/fuel-surcharge}
+    :has-many   {:fuel-surcharge-table-row :fuel-surcharge-table/fuel-surcharge-table-rows}}
+   [:fuel-surcharge-table/surcharge-type string?]
+   [:fuel-surcharge-table/delay-periods int?]
+   [:fuel-surcharge-table/fuel-surcharge-id int?]
+   [:fuel-surcharge-table/update-interval int?]
+   [:fuel-surcharge-table/update-interval-unit string?]
+   [:fuel-surcharge-table/id int?]
+   [:fuel-surcharge-table/valid-at [:fn t/local-date?]]
+   [:fuel-surcharge-table/delay-period-unit string?]
+   [:fuel-surcharge-table/price-is-rounded-to-cent boolean?]
+   [:fuel-surcharge-table/created-at [:fn t/local-date-time?]]])
+
+(def fuel-surcharge-table-row
+  [:map
+   {:belongs-to {:fuel-surcharge-table :fuel-surcharge-table-row/fuel-surcharge-table}}
+   [:fuel-surcharge-table-row/id int?]
+   [:fuel-surcharge-table-row/fuel-surcharge-table-id int?]
+   [:fuel-surcharge-table-row/price double?]
+   [:fuel-surcharge-table-row/surcharge-amount double?]
+   [:fuel-surcharge-table-row/created-at [:fn t/local-date-time?]]])
+
 (defstate register-models
   :start
   (register!
-    {:market       market-model
-     :market-price market-price-model}))
+    {:market                   market
+     :market-price             market-price
+     :fuel-surcharge           fuel-surcharge
+     :fuel-surcharge-table     fuel-surcharge-table
+     :fuel-surcharge-table-row fuel-surcharge-table-row}))
 
 (defn select-all [table]
   (-> (q/select :*)
       (q/from table)
-      (gd/query!)))
+      (sql/format)
+      db/query))
 
-(comment (select-all :market))
+(defn strip-keys
+  [schema value]
+  (malli.core/decode schema value malli.transform/strip-extra-keys-transformer))
+
+(defn map->nsmap
+  [n m]
+  (reduce-kv (fn [acc k v]
+               (let [new-kw (if (and (keyword? k)
+                                     (not (qualified-keyword? k)))
+                              (keyword (name n) (name k))
+                              k) ]
+                 (assoc acc new-kw v)))
+             {} m))
+
+(defn select-all-namespaced [table]
+  (->> (select-all table)
+       (map (partial map->nsmap table))))
+
+;; Utilities for generating malli for a given table
+(comment (def model-name :market-price))
+;; sample a row
+(comment (first (select-all-namespaced model-name)))
+;; given three sample rows, infer the schema
+(comment (mp/provide (take 3 (select-all-namespaced model-name))))
+;; check the schema against one row
+(comment (m/explain (var-get (resolve (symbol model-name))) (first (select-all-namespaced model-name))))
+;; check the schema against all rows
+(comment (m/explain [:sequential (var-get (resolve (symbol model-name)))]
+                    (select-all-namespaced model-name)))

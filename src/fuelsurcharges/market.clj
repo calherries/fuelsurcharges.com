@@ -15,51 +15,45 @@
 (comment (model/find :market-price))
 (comment (q/all! :market))
 (comment (st/instrument))
-
-(defn select-all [table]
-  (-> (q/select :*)
-      (q/from table)
-      (gd/query!)))
+(comment (models/strip-keys [:map
+                             [:include-key int?]]
+                            {:include-key 1
+                             :strip-key   2}))
 
 (defn get-markets []
-  (select-all :market))
+  (q/all! :market))
 
 (defn get-market-prices []
-  (select-all :market-price))
+  (q/all! :market-price))
 
 (def market-prices-list-schema
   [:sequential
-   (-> models/market-price-model
+   (-> models/market-price
        (mu/select-keys [:market-price/market-id
                         :market-price/price-date
                         :market-price/price]))])
 
 (defn-spec get-last-year-market-prices (m/validator market-prices-list-schema)
   []
-  (-> (q/select
-        :market-price/market-id
-        :market-price/price-date
-        :market-price/price)
-      (q/from :market-price)
-      (q/where [:> :market-price/price-date (sql/raw ["now() - interval '1 year' - interval '2 week'"])])
-      (gd/query!)))
+  (-> (q/where [:> :market-price/price-date (sql/raw ["now() - interval '1 year' - interval '2 week'"])])
+      (q/all! :market-price)
+      (#(models/strip-keys market-prices-list-schema %))))
 
 (def markets-list-schema
   [:sequential
-   (-> models/market-model
+   (-> models/market
        (mu/select-keys [:market/id
                         :market/market-name
                         :market/source-name])
-       (mu/assoc :market/prices any?))])
+       (mu/assoc :market/market-prices [:sequential models/market-price]))])
 
 (defn-spec markets-list (m/validator markets-list-schema)
   []
-  (let [prices (get-last-year-market-prices)]
-    (->> (get-markets)
-         (map #(select-keys % [:market/id
-                               :market/market-name
-                               :market/source-name]))
-         (map #(assoc % :market/prices (filter (comp #{(:market/id %)} :market-price/market-id) prices))))))
+  (->> (q/all! :market)
+       (map #(-> %
+                 (update :market/market-prices swap! q/merge-where [:> :market-price/price-date (sql/raw ["now() - interval '1 year' - interval '2 week'"])])
+                 (q/load! :market/market-prices)))
+       (models/strip-keys markets-list-schema)))
 
 (comment (get-markets))
 (comment (m/explain markets-list-schema (markets-list)))

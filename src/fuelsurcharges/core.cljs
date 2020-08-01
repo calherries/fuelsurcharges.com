@@ -91,7 +91,7 @@
            [:tbody
             (doall
               (for [market @(rf/subscribe [:markets/markets])]
-                (let [prices            (:market/prices market)
+                (let [prices            (:market/market-prices market)
                       width             300
                       height            100
                       points            (price-points-str (take-last 52 (map :market-price/price prices)) width height)
@@ -206,7 +206,7 @@
            [:th.text-center.p-2 "This Week"]
            [:th.text-center.p-2 "Change"]]]
          [:tbody
-          (let [prices            (:market/prices market)
+          (let [prices            (:market/market-prices market)
                 width             300
                 height            100
                 points            (price-points-str (take-last 52 (map :market-price/price prices)) width height)
@@ -251,7 +251,7 @@
            [:th.text-center "End Date"]
            [:th.text-center.p-2 "Fuel Price"]]]
          [:tbody
-          (for [price (reverse (:market/prices market))]
+          (for [price (reverse (:market/market-prices market))]
             ^{:key (gen-key)}
             [:tr.border-b.text-center
              [:td {:style {:width "25%"}}

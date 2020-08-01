@@ -12,7 +12,8 @@
    [camel-snake-kebab.extras :as cske]
    [gungnir.changeset :refer [changeset]]
    [gungnir.database :refer [make-datasource! *database*]]
-   [clojure.java.jdbc :as jdbc]
+   [next.jdbc.sql :as jsql]
+   [next.jdbc :as jdbc]
    [gungnir.query :as q]
    [clj-bonecp-url.core :refer [parse-url]]
    [gungnir.model :refer [register!]]
@@ -130,3 +131,6 @@
 (defmethod hsqlc/hugsql-result-fn :one [_sym] 'fuelsurcharges.db.core/result-one-format)
 (defmethod hsqlc/hugsql-result-fn :* [_sym] 'fuelsurcharges.db.core/result-many-format)
 (defmethod hsqlc/hugsql-result-fn :many [_sym] 'fuelsurcharges.db.core/result-many-format)
+
+(defn query [query]
+  (kebab-case-keys (jsql/query *db* query)))
