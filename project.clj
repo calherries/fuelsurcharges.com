@@ -42,6 +42,7 @@
                  [camel-snake-kebab "0.4.1"]
                  [re-frame "0.12.0"]
                  [reagent "0.10.0"]
+                 [honeysql "1.0.444"]
                  [ring-webjars "0.2.0"]
                  [ring/ring-core "1.8.1"]
                  [ring/ring-defaults "0.3.2"]

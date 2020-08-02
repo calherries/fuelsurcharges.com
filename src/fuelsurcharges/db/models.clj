@@ -32,16 +32,16 @@
 (def fuel-surcharge
   [:map
    {:has-many {:fuel-surcharge-table :fuel-surcharge/fuel-surcharge-tables}}
-   [:fuel-surcharge/id int?]
+   [:fuel-surcharge/id {:primary-key true} int?]
    [:fuel-surcharge/market-id int?]
    [:fuel-surcharge/name string?]
    [:fuel-surcharge/source-url string?]
    [:fuel-surcharge/company-name string?]
-   [:fuel-surcharge/created-at [:fn t/local-date-time?]]])
+   [:fuel-surcharge/created-at {:auto true} [:fn t/local-date-time?]]])
 
 (def fuel-surcharge-table
   [:map
-   {:belongs-to {:fuel-surcharge :fuel-surcharge-table/fuel-surcharge}
+   {:belongs-to {:fuel-surcharge :fuel-surcharge-table/fuel-surcharge-id}
     :has-many   {:fuel-surcharge-table-row :fuel-surcharge-table/fuel-surcharge-table-rows}}
    [:fuel-surcharge-table/surcharge-type string?]
    [:fuel-surcharge-table/delay-periods int?]
@@ -52,16 +52,16 @@
    [:fuel-surcharge-table/valid-at [:fn t/local-date?]]
    [:fuel-surcharge-table/delay-period-unit string?]
    [:fuel-surcharge-table/price-is-rounded-to-cent boolean?]
-   [:fuel-surcharge-table/created-at [:fn t/local-date-time?]]])
+   [:fuel-surcharge-table/created-at {:auto true} [:fn t/local-date-time?]]])
 
 (def fuel-surcharge-table-row
   [:map
-   {:belongs-to {:fuel-surcharge-table :fuel-surcharge-table-row/fuel-surcharge-table}}
+   {:belongs-to {:fuel-surcharge-table :fuel-surcharge-table-row/fuel-surcharge-table-id}}
    [:fuel-surcharge-table-row/id int?]
    [:fuel-surcharge-table-row/fuel-surcharge-table-id int?]
    [:fuel-surcharge-table-row/price double?]
    [:fuel-surcharge-table-row/surcharge-amount double?]
-   [:fuel-surcharge-table-row/created-at [:fn t/local-date-time?]]])
+   [:fuel-surcharge-table-row/created-at {:auto true} [:fn t/local-date-time?]]])
 
 (defstate register-models
   :start
@@ -79,7 +79,7 @@
       db/query))
 
 (defn strip-keys
-  [schema value]
+  [value schema]
   (malli.core/decode schema value malli.transform/strip-extra-keys-transformer))
 
 (defn map->nsmap

@@ -19,6 +19,7 @@
    [gungnir.model :refer [register!]]
    [hikari-cp.core :as hikari-cp]
    [clojure.walk :as walk]
+   [honeysql.core :as sql]
    [hugsql.adapter :as hsqla]
    [hugsql.core :as hsqlc])
   (:import [org.postgresql.util PGobject]
@@ -115,7 +116,12 @@
 (defn kebab-case-keys
   "Converts all the keys in the given map to kebab-case"
   [m]
-  (cske/transform-keys csk/->kebab-case-keyword m))
+  (cske/transform-keys  #(-> %
+                             (clojure.string/replace #"\." "/")
+                             (clojure.string/replace #"_" "-")
+                             (subs 1)
+                             keyword)
+                        m))
 
 (defn result-one-format
   [this result options]
@@ -134,3 +140,13 @@
 
 (defn query [query]
   (kebab-case-keys (jsql/query *db* query)))
+
+(defn execute [query]
+  (kebab-case-keys (jdbc/execute! *db* query)))
+
+(defn honey->sql
+  ([m] (honey->sql m {}))
+  ([m opts]
+   (sql/format m
+               :namespace-as-table? (:namespace-as-table? opts true)
+               :quoting :ansi)))

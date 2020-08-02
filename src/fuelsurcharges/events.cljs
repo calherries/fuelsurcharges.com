@@ -183,7 +183,7 @@
     (when (#{:fsc} (-> route :data :name))
       (let [id (-> route :parameters :path :id)]
         (->> fscs
-             (filter (comp #{id} :id))
+             (filter (comp #{id} :fuel-surcharge/id))
              first)))))
 
 (rf/reg-sub

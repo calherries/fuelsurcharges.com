@@ -12,7 +12,7 @@
    [fuelsurcharges.middleware.exception :as exception]
    [fuelsurcharges.validation :as validation]
    [fuelsurcharges.market :as market]
-   [fuelsurcharges.fuel-surcharges :as fsc]
+   [fuelsurcharges.fuel-surcharge :as fuel-surcharge]
    [ring.util.http-response :refer :all]
    [malli.core :as m]
    [fuelsurcharges.db.core :as db]
@@ -73,17 +73,16 @@
    ["/fuel-surcharge"
     {:get
      {:summary    "get a fuel surcharge rate table"
-      :responses  (ok-body {:table [{:price            number?
-                                     :surcharge-amount number?}]})
+      ;; :responses  (ok-body {:table fuel-surcharge/get-fuel-surcharges-history-schema})
       :parameters {:query {:id int?}}
       :handler    (fn [{{{:keys [id]} :query} :parameters}]
-                    (ok {:table (db/get-current-fuel-surcharge-table-rows {:id id})}))}}]
+                    (ok {:table (fuel-surcharge/get-current-fuel-surcharge-table-rows id)}))}}]
 
    ["/fuel-surcharges"
     {:get
      {:summary "get all fuel surcharges and their price history"
       :handler (fn [_]
-                 (ok {:fuel-surcharges (fsc/get-fuel-surcharges-history)}))}}]
+                 (ok {:fuel-surcharges (fuel-surcharge/get-fuel-surcharges-history)}))}}]
 
    ["/market-prices"
     {:get

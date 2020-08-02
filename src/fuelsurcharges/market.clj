@@ -37,7 +37,7 @@
   []
   (-> (q/where [:> :market-price/price-date (sql/raw ["now() - interval '1 year' - interval '2 week'"])])
       (q/all! :market-price)
-      (#(models/strip-keys market-prices-list-schema %))))
+      (models/strip-keys market-prices-list-schema)))
 
 (def markets-list-schema
   [:sequential
@@ -49,11 +49,11 @@
 
 (defn-spec markets-list (m/validator markets-list-schema)
   []
-  (->> (q/all! :market)
-       (map #(-> %
-                 (update :market/market-prices swap! q/merge-where [:> :market-price/price-date (sql/raw ["now() - interval '1 year' - interval '2 week'"])])
-                 (q/load! :market/market-prices)))
-       (models/strip-keys markets-list-schema)))
+  (->>    (q/all! :market)
+          (map #(-> %
+                    (update :market/market-prices swap! q/merge-where [:> :market-price/price-date (sql/raw ["now() - interval '1 year' - interval '2 week'"])])
+                    (q/load! :market/market-prices)))
+          (#(models/strip-keys % markets-list-schema))))
 
 (comment (get-markets))
 (comment (m/explain markets-list-schema (markets-list)))
