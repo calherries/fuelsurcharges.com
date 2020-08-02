@@ -58,8 +58,8 @@
 
   :min-lein-version "2.0.0"
 
-  :source-paths ["src"]
-  :test-paths ["test"]
+  :source-paths ["src/clj" "src/cljs" "src/cljc"]
+  :test-paths ["test/clj" "test/cljs"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"
   :main ^:skip-aot fuelsurcharges.core
@@ -75,37 +75,30 @@
              :prep-tasks     ["compile" ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]
              :aot            :all
              :uberjar-name   "fuelsurcharges.jar"
-             :source-paths   ["env/prod"]
+             :source-paths   ["env/prod/clj" "env/prod/cljc" "env/prod/cljs"]
              :resource-paths ["env/prod/resources"]}
-
-   :update-markets {:omit-source    true
-                    :uberjar-name   "update_markets.jar"
-                    :source-paths   ["env/prod"]
-                    :resource-paths ["env/prod/resources"]}
 
    :dev  [:project/dev :profiles/dev]
    :test [:project/dev :project/test :profiles/test]
 
-   :project/dev {:jvm-opts     ["-Dconf=dev-config.edn" ]
-                 :dependencies [[binaryage/devtools "1.0.0"]
-                                [cider/piggieback "0.5.0"]
-                                [pjstadig/humane-test-output "0.10.0"]
-                                [jonase/eastwood "0.3.5" :exclusions [org.clojure/clojure]]
-                                [prone "2020-01-17"]
-                                [re-frisk "1.3.2"]
-                                [day8.re-frame/re-frame-10x "0.6.5"]
-                                [ring/ring-devel "1.8.1"]
-                                [ring/ring-mock "0.4.0"]]
-                 :plugins      [[com.jakemccrary/lein-test-refresh "0.24.1"]
-                                [jonase/eastwood "0.3.5"]]
-
-
-                 :source-paths   ["env/dev" "test"]
-                 :resource-paths ["env/dev/resources"]
-                 :repl-options   {:init-ns user
-                                  :timeout 240000}
-                 :injections     [(require 'pjstadig.humane-test-output)
-                                  (pjstadig.humane-test-output/activate!)]}
+   :project/dev  {:jvm-opts       ["-Dconf=dev-config.edn" ]
+                  :dependencies   [[binaryage/devtools "1.0.0"]
+                                   [cider/piggieback "0.5.0"]
+                                   [pjstadig/humane-test-output "0.10.0"]
+                                   [jonase/eastwood "0.3.5" :exclusions [org.clojure/clojure]]
+                                   [prone "2020-01-17"]
+                                   [re-frisk "1.3.2"]
+                                   [day8.re-frame/re-frame-10x "0.6.5"]
+                                   [ring/ring-devel "1.8.1"]
+                                   [ring/ring-mock "0.4.0"]]
+                  :plugins        [[com.jakemccrary/lein-test-refresh "0.24.1"]
+                                   [jonase/eastwood "0.3.5"]]
+                  :source-paths   ["env/dev/clj" "env/dev/cljc" "env/dev/cljs"]
+                  :resource-paths ["env/dev/resources"]
+                  :repl-options   {:init-ns user
+                                   :timeout 240000}
+                  :injections     [(require 'pjstadig.humane-test-output)
+                                   (pjstadig.humane-test-output/activate!)]}
    :project/test {:jvm-opts       ["-Dconf=test-config.edn" ]
                   :resource-paths ["env/test/resources"]
 

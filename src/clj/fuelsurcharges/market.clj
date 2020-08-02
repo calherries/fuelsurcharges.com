@@ -8,7 +8,7 @@
               [honeysql.core :as sql]
               [malli.util :as mu]
               [gungnir.record :refer [model table]]
-              [fuelsurcharges.db.models :refer [register-models] :as models]
+              [fuelsurcharges.models :refer [register-models] :as models]
               [java-time :as t]))
 
 (comment (model/find :market))

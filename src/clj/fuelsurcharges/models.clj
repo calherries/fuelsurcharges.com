@@ -1,4 +1,4 @@
-(ns fuelsurcharges.db.models
+(ns fuelsurcharges.models
   (:require
    [fuelsurcharges.db.core :refer [datasource] :as db]
    [java-time :as t]

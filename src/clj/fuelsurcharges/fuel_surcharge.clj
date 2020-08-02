@@ -10,7 +10,7 @@
               [honeysql.helpers :as h]
               [malli.util :as mu]
               [fuelsurcharges.db.core :as db]
-              [fuelsurcharges.db.models :refer [register-models] :as models]
+              [fuelsurcharges.models :refer [register-models] :as models]
               [java-time :as t]))
 
 (comment (st/instrument))
