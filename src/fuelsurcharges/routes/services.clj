@@ -23,7 +23,7 @@
 
 (defn service-routes []
   ["/api"
-   {:coercion   spec-coercion/coercion
+   {:coercion   malli-coercion/coercion
     :muuntaja   formats/instance
     :swagger    {:id ::api}
     :middleware [ ;; query-params & form-params
@@ -58,23 +58,16 @@
 
    ["/markets"
     {:get
-     {:summary "get all markets and their price data"
-      ;; :responses (ok-body {:markets [:vector
-      ;;                                [:map
-      ;;                                 [:prices
-      ;;                                  [:list
-      ;;                                   [:map [:market-id int?] [:price double?] [:price-date any?]]]]
-      ;;                                 [:id int?]
-      ;;                                 [:market-name string?]
-      ;;                                 [:source-name string?]]]})
-      :handler (fn [_]
-                 (ok {:markets (market/markets-list)}))}}]
+     {:summary   "get all markets and their price data"
+      :responses (ok-body [:map [:markets market/markets-list-schema]])
+      :handler   (fn [_]
+                   (ok {:markets (market/markets-list)}))}}]
 
    ["/fuel-surcharge"
     {:get
      {:summary    "get a fuel surcharge rate table"
-      ;; :responses  (ok-body {:table fuel-surcharge/get-fuel-surcharges-history-schema})
-      :parameters {:query {:id int?}}
+      :responses  (ok-body [:map [:table fuel-surcharge/fuel-surcharge-table-rows-schema]])
+      :parameters {:query [:map [:id int?]]}
       :handler    (fn [{{{:keys [id]} :query} :parameters}]
                     (ok {:table (fuel-surcharge/get-current-fuel-surcharge-table-rows id)}))}}]
 

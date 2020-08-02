@@ -9,18 +9,6 @@ VALUES (:market-name, :source-name)
 DELETE FROM market
 WHERE id = :id
 
--- :name get-markets :? :*
--- :doc selects all markets
-SELECT * from market
-
--- :name get-fuel-surcharges :? :*
--- :doc selects all fuel surcharges
-SELECT * from fuel_surcharge
-
--- :name get-fuel-surcharge-tables :? :*
--- :doc selects all fuel surcharges
-SELECT * from fuel_surcharge_table
-
 -- :name get-fuel-surcharge-table-rows :? :*
 -- :doc selects all fuel surcharge table rows
 select *
@@ -44,34 +32,6 @@ VALUES :tuple*:market-prices
 -- :doc deletes a market record given the market_id
 DELETE FROM market_price
 WHERE market_id = :market-id
-
--- :name get-market-prices :? :*
--- :doc selects all market_price
-SELECT * from market_price
-
--- :name get-last-year-market-prices :? :*
--- :doc selects all market_price within the last year
-select * from market_price
-where price_date > now() - interval '1 year' - interval '2 week'
-
--- :name get-last-year-fuel-surcharges :? :*
--- :doc selects all fuel-surcharges within the last year
-select
-  f.id as fuel_surcharge_id
-  , p.market_id
-  , p.price_date
-  , p.price
-  , max(r.price) as table_price
-  , max(r.surcharge_amount) as surcharge_amount
-from market_price p
-join fuel_surcharge f on f.market_id = p.market_id
-join fuel_surcharge_table t on f.id = t.fuel_surcharge_id
-join fuel_surcharge_table_row r on t.id = r.fuel_surcharge_table_id
-where true
-  and p.price_date > now() - interval '1 year' - interval '2 week'
-  and p.price > r.price
-group by 1, 2, 3, 4
-order by p.price_date
 
 -- :name create-fuel-surcharge! :! :n
 -- :doc creates a new fuel-surcharge record
@@ -103,13 +63,3 @@ WHERE fuel_surcharge_table_id = :id
 -- :name delete-all-fuel-surcharge-table-rows! :! :n
 -- :doc deletes all fuel-surcharge-table rows given the table id
 DELETE FROM fuel_surcharge_table_row
-
--- :name get-current-fuel-surcharge-table-rows :? :*
--- :doc gets the current fuel-surcharge-table rows given the fuel surcharge id
-select
-  r.price
-  , r.surcharge_amount
-from fuel_surcharge f
-join fuel_surcharge_table t on f.id = t.fuel_surcharge_id
-join fuel_surcharge_table_row r on t.id = r.fuel_surcharge_table_id
-where f.id = :id
