@@ -3,7 +3,7 @@
             [clojure.java.io]
             [clojure.tools.logging :as log]
             [java-time :as t]
-            [fuelsurcharges.market :as market]
+            [fuelsurcharges.db.market :as market]
             [dk.ative.docjure.spreadsheet :as ss]
             [missionary.core :as m]))
 

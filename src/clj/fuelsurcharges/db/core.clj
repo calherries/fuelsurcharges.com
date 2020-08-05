@@ -139,3 +139,25 @@
        (q/where [:= k v])
        honey->sql
        execute!)))
+
+;; Utilities for generating malli for a given table
+(defn select-all [table]
+  (-> (q/select :*)
+      (q/from table)
+      honey->sql
+      query!))
+
+
+(defn map->nsmap
+  [n m]
+  (reduce-kv (fn [acc k v]
+               (let [new-kw (if (and (keyword? k)
+                                     (not (qualified-keyword? k)))
+                              (keyword (name n) (name k))
+                              k)]
+                 (assoc acc new-kw v)))
+             {} m))
+
+(defn select-all-namespaced [table]
+  (->> (select-all table)
+       (map (partial map->nsmap table))))

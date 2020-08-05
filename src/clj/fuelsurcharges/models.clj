@@ -72,38 +72,17 @@
      :fuel-surcharge-table     fuel-surcharge-table
      :fuel-surcharge-table-row fuel-surcharge-table-row}))
 
-(defn select-all [table]
-  (-> (q/select :*)
-      (q/from table)
-      (sql/format)
-      db/query!))
-
 (defn strip-keys
   [value schema]
   (malli.core/decode schema value malli.transform/strip-extra-keys-transformer))
 
-(defn map->nsmap
-  [n m]
-  (reduce-kv (fn [acc k v]
-               (let [new-kw (if (and (keyword? k)
-                                     (not (qualified-keyword? k)))
-                              (keyword (name n) (name k))
-                              k)]
-                 (assoc acc new-kw v)))
-             {} m))
-
-(defn select-all-namespaced [table]
-  (->> (select-all table)
-       (map (partial map->nsmap table))))
-
-;; Utilities for generating malli for a given table
 (comment (def model-name :market-price))
 ;; sample a row
-(comment (first (select-all-namespaced model-name)))
+(comment (first (db/select-all-namespaced model-name)))
 ;; given three sample rows, infer the schema
-(comment (mp/provide (take 3 (select-all-namespaced model-name))))
+(comment (mp/provide (take 3 (db/select-all-namespaced model-name))))
 ;; check the schema against one row
-(comment (m/explain (var-get (resolve (symbol model-name))) (first (select-all-namespaced model-name))))
+(comment (m/explain (var-get (resolve (symbol model-name))) (first (db/select-all-namespaced model-name))))
 ;; check the schema against all rows
 (comment (m/explain [:sequential (var-get (resolve (symbol model-name)))]
-                    (select-all-namespaced model-name)))
+                    (db/select-all-namespaced model-name)))

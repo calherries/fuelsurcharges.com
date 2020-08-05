@@ -3,8 +3,7 @@
             [clojure.java.io]
             [clojure.tools.logging :as log]
             [java-time :as t]
-            [fuelsurcharges.db.core :as db]
-            [fuelsurcharges.fuel-surcharge :as fuel-surcharge]
+            [fuelsurcharges.db.fuel-surcharge :as fuel-surcharge]
             [dk.ative.docjure.spreadsheet :as ss]))
 
 (defn inst->local-date [inst]
@@ -23,7 +22,7 @@
 
 (comment (fuel-surcharge-table "FedEx Freight"))
 
-(comment (db/get-markets))
+(comment (market/get-markets))
 (comment (fuel-surcharge/get-fuel-surcharges))
 (comment (fuel-surcharge/delete-fuel-surcharge! 12))
 (comment (fuel-surcharge/insert-fuel-surcharge! {:market-id    3
@@ -31,10 +30,10 @@
                                                  :source-url   "https://www.fedex.com/en-us/shipping/fuel-surcharge.html"
                                                  :company-name "FedEx"}))
 
-(comment (db/insert-market-prices! {:market-prices
-                                    [[1 (LocalDate/now) 1.091 "EUR"]]}))
+(comment (market/insert-market-prices! {:market-prices
+                                        [[1 (LocalDate/now) 1.091 "EUR"]]}))
 
-(comment (db/create-fuel-surcharge-table!
+(comment (fuel-surcharge/create-fuel-surcharge-table!
            {:fuel-surcharge-id        10
             :update-interval-unit     "week"
             :update-interval          1

@@ -5,11 +5,12 @@
    [clojure.test :refer :all]
    [gungnir.model :as gmodel]
    [malli.core :as m]
+   [fuelsurcharges.db.core :as db]
    [fuelsurcharges.models :refer [register-models] :as models]))
 
 (defn validate-model [model-name]
   (let [model (model-name @gmodel/models)]
-    (m/validate [:sequential model] (models/select-all-namespaced model-name))))
+    (m/validate [:sequential model] (db/select-all-namespaced model-name))))
 
 (comment (every? identity (map validate-model (keys @gmodel/models))))
 (comment (validate-model (first (keys @gmodel/models))))
