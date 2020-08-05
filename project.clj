@@ -11,7 +11,6 @@
                  [com.fasterxml.jackson.core/jackson-core "2.11.0"]
                  [com.fasterxml.jackson.core/jackson-databind "2.11.0"]
                  [com.google.javascript/closure-compiler-unshaded "v20200504" :scope "provided"]
-                 [conman "0.8.9"]
                  [cprop "0.1.17"]
                  [day8.re-frame/http-fx "0.1.6"]
                  [expound "0.8.4"]

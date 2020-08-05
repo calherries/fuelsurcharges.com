@@ -4,44 +4,25 @@
    [next.jdbc.date-time]
    [next.jdbc.prepare]
    [next.jdbc.result-set]
+   [next.jdbc.sql :as jsql]
+   [next.jdbc :as jdbc]
    [clojure.tools.logging :as log]
-   [conman.core :as conman]
    [fuelsurcharges.config :refer [env]]
    [mount.core :refer [defstate]]
    [camel-snake-kebab.core :as csk]
    [camel-snake-kebab.extras :as cske]
-   [gungnir.changeset :refer [changeset]]
    [gungnir.model :as gm]
    [gungnir.database :refer [make-datasource! *database*]]
-   [next.jdbc.sql :as jsql]
-   [next.jdbc :as jdbc]
    [gungnir.query :as q]
    [gungnir.changeset :as changeset]
    [clj-bonecp-url.core :refer [parse-url]]
    [gungnir.model :refer [register!]]
    [hikari-cp.core :as hikari-cp]
    [clojure.walk :as walk]
-   [honeysql.core :as sql]
-   [hugsql.adapter :as hsqla]
-   [hugsql.core :as hsqlc])
+   [honeysql.core :as sql])
   (:import [org.postgresql.util PGobject]
            [java.time LocalDate]
            java.net.URI))
-
-(defstate ^:dynamic *db*
-  :start (if-let [database-url (env :database-url)]
-           (conman/connect! (if (clojure.string/starts-with? database-url "postgres:")
-                              (-> (parse-url database-url)
-                                  (dissoc :adapter)
-                                  (assoc :subprotocol "postgresql"))
-                              {:adapter  "postgresql"
-                               :jdbc-url database-url
-                               :username "fuelsurcharges"}))
-           (do (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
-               *db*))
-  :stop (conman/disconnect! *db*))
-
-(conman/bind-connection *db* "sql/queries.sql")
 
 (defstate datasource
   :start (if-let [database-url (env :database-url)]
@@ -125,26 +106,11 @@
                              keyword)
                         m))
 
-(defn result-one-format
-  [this result options]
-  (->> (hsqla/result-one this result options)
-       kebab-case-keys))
-
-(defn result-many-format
-  [this result options]
-  (->> (hsqla/result-many this result options)
-       (map kebab-case-keys)))
-
-(defmethod hsqlc/hugsql-result-fn :1 [_sym] 'fuelsurcharges.db.core/result-one-format)
-(defmethod hsqlc/hugsql-result-fn :one [_sym] 'fuelsurcharges.db.core/result-one-format)
-(defmethod hsqlc/hugsql-result-fn :* [_sym] 'fuelsurcharges.db.core/result-many-format)
-(defmethod hsqlc/hugsql-result-fn :many [_sym] 'fuelsurcharges.db.core/result-many-format)
-
 (defn query! [query]
-  (kebab-case-keys (jsql/query *db* query)))
+  (kebab-case-keys (jsql/query *database* query)))
 
 (defn execute! [query]
-  (kebab-case-keys (jdbc/execute! *db* query)))
+  (kebab-case-keys (jdbc/execute! *database* query)))
 
 (defn honey->sql
   ([m] (honey->sql m {}))

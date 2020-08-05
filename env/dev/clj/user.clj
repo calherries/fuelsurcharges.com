@@ -8,7 +8,6 @@
    [mount.core :as mount]
    [fuelsurcharges.core :refer [start-app]]
    [fuelsurcharges.db.core]
-   [conman.core :as conman]
    [eastwood.lint :refer [eastwood] :as e]
    [luminus-migrations.core :as migrations]))
 
@@ -36,10 +35,8 @@
 (defn restart-db
   "Restarts database."
   []
-  (mount/stop #'fuelsurcharges.db.core/*db*)
-  (mount/start #'fuelsurcharges.db.core/*db*)
-  (binding [*ns* 'fuelsurcharges.db.core]
-    (conman/bind-connection fuelsurcharges.db.core/*db* "sql/queries.sql")))
+  (mount/stop #'fuelsurcharges.db.core/datasource)
+  (mount/start #'fuelsurcharges.db.core/datasource))
 
 (defn reset-db
   "Resets database."
