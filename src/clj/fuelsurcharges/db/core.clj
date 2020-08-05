@@ -11,10 +11,12 @@
    [camel-snake-kebab.core :as csk]
    [camel-snake-kebab.extras :as cske]
    [gungnir.changeset :refer [changeset]]
+   [gungnir.model :as gm]
    [gungnir.database :refer [make-datasource! *database*]]
    [next.jdbc.sql :as jsql]
    [next.jdbc :as jdbc]
    [gungnir.query :as q]
+   [gungnir.changeset :as changeset]
    [clj-bonecp-url.core :refer [parse-url]]
    [gungnir.model :refer [register!]]
    [hikari-cp.core :as hikari-cp]
@@ -39,7 +41,9 @@
                *db*))
   :stop (conman/disconnect! *db*))
 
-(defstate ^:dynamic datasource
+(conman/bind-connection *db* "sql/queries.sql")
+
+(defstate datasource
   :start (if-let [database-url (env :database-url)]
            (make-datasource! (if (clojure.string/starts-with? database-url "postgres:")
                                (-> (parse-url database-url)
@@ -55,8 +59,6 @@
 (comment (jdbc/with-db-connection [conn {:datasource *database*}]
            (let [rows (jdbc/query conn "SELECT table_name FROM information_schema.tables where table_schema = 'public'")]
              (println rows))))
-
-(conman/bind-connection *db* "sql/queries.sql")
 
 (defn pgobj->clj [^org.postgresql.util.PGobject pgobj]
   (let [type  (.getType pgobj)
@@ -138,10 +140,10 @@
 (defmethod hsqlc/hugsql-result-fn :* [_sym] 'fuelsurcharges.db.core/result-many-format)
 (defmethod hsqlc/hugsql-result-fn :many [_sym] 'fuelsurcharges.db.core/result-many-format)
 
-(defn query [query]
+(defn query! [query]
   (kebab-case-keys (jsql/query *db* query)))
 
-(defn execute [query]
+(defn execute! [query]
   (kebab-case-keys (jdbc/execute! *db* query)))
 
 (defn honey->sql
@@ -150,3 +152,24 @@
    (sql/format m
                :namespace-as-table? (:namespace-as-table? opts true)
                :quoting :ansi)))
+
+(defn insert! [table m]
+  (-> m
+      (changeset/cast table)
+      changeset/changeset
+      q/save!))
+
+(defn insert-many! [table rows]
+  (-> (q/insert-into table)
+      (q/values (map #(changeset/cast % table) rows))
+      honey->sql
+      execute!))
+
+(defn delete!
+  ([table id]
+   (delete! table (gm/primary-key table) id))
+  ([table k v]
+   (-> (q/delete-from table)
+       (q/where [:= k v])
+       honey->sql
+       execute!)))

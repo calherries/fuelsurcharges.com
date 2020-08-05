@@ -1,11 +1,13 @@
 (ns fuelsurcharges.fuel-surcharge
   (:require   [gungnir.query :as q]
-              [gungnir.database :as gd]
               [orchestra.core :refer [defn-spec]]
               [orchestra.spec.test :as st]
-              [gungnir.model :as model]
+              [gungnir.model :as gm]
+              [gungnir.query :as query]
+              [gungnir.changeset :as changeset]
               [malli.core :as m]
               [malli.provider :as mp]
+              [malli.generator :as mg]
               [honeysql.core :as sql]
               [honeysql.helpers :as h]
               [malli.util :as mu]
@@ -24,6 +26,8 @@
 (comment (-> (q/find! :fuel-surcharge 3)
              (load-walk :fuel-surcharge/fuel-surcharge-tables)
              (load-walk :fuel-surcharge-table/fuel-surcharge-table-rows)))
+
+;; Read
 
 (defn-spec get-fuel-surcharges (m/validator [:sequential models/fuel-surcharge])
   []
@@ -75,10 +79,10 @@
                :market-price/price)
       (q/order-by :market-price/price-date)
       db/honey->sql
-      db/execute))
+      db/execute!))
 
 (comment (take 2 (get-last-year-fuel-surcharges)))
-(comment (db/execute ["select * from fuel_surcharge"]))
+(comment (db/execute! ["select * from fuel_surcharge"]))
 
 (def get-fuel-surcharges-history-schema
   [:sequential
@@ -98,3 +102,45 @@
 (comment (m/explain market-prices-list-schema (get-last-year-market-prices)))
 (comment (mp/provide (take 2 (get-last-year-fuel-surcharges))))
 (comment (m/explain fuel-surcharge-history-schema (take 2 (get-last-year-fuel-surcharges))))
+
+;; side-effecting create functions
+
+(defn insert-fuel-surcharge! [m]
+  (db/insert! :fuel-surcharge m))
+
+(comment (insert-fuel-surcharge!
+           {:fuel-surcharge/market-id    "heyj"
+            :fuel-surcharge/name         "Test"
+            :fuel-surcharge/source-url   "Source-url"
+            :fuel-surcharge/company-name "My company"}))
+
+(defn insert-fuel-surcharge-table! [m]
+  (db/insert! :fuel-surcharge-table m))
+
+(defn delete-fuel-surcharge! [id]
+  (db/delete! :fuel-surcharge id))
+
+(defn delete-fuel-surcharge-table! [id]
+  (db/delete! :fuel-surcharge-table id))
+
+(defn delete-fuel-surcharge-table-rows! [table-id]
+  (db/delete! :fuel-surcharge-table-row :fuel-surcharge-table-row/fuel-surcharge-table-id table-id))
+
+(defn insert-fuel-surcharge-table-row! [m]
+  (db/insert! :fuel-surcharge-table-row m))
+
+(defn insert-fuel-surcharge-table-rows! [rows]
+  (db/insert-many! :fuel-surcharge-table-row rows))
+
+(comment (db/execute! (delete! :fuel-surcharge 11)))
+(comment (def x (-> (query/find-by! :fuel-surcharge-table/id 9)
+                    (changeset/cast :fuel-surcharge-table)
+                    (dissoc :fuel-surcharge-table/id :fuel-surcharge-table/created-at))))
+(comment (db/insert! :fuel-surcharge-table x))
+(comment (query/all! :fuel-surcharge-table))
+(comment (gm/find d :fuel-surcharge-table))
+(comment (delete-fuel-surcharge-table! 10))
+(comment (def x (-> (query/find-by! :fuel-surcharge-table-row/fuel-surcharge-table-id 9)
+                    (changeset/cast :fuel-surcharge-table-row)
+                    (dissoc :fuel-surcharge-table-row/id :fuel-surcharge-table-row/created-at))))
+(comment (delete-fuel-surcharge-table-rows! 10))

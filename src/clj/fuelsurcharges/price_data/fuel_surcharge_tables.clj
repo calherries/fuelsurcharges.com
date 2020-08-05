@@ -4,6 +4,7 @@
             [clojure.tools.logging :as log]
             [java-time :as t]
             [fuelsurcharges.db.core :as db]
+            [fuelsurcharges.fuel-surcharge :as fuel-surcharge]
             [dk.ative.docjure.spreadsheet :as ss]))
 
 (defn inst->local-date [inst]
@@ -23,14 +24,12 @@
 (comment (fuel-surcharge-table "FedEx Freight"))
 
 (comment (db/get-markets))
-(comment (db/get-fuel-surcharges))
-(comment (db/get-fuel-surcharge-tables))
-(comment (db/get-fuel-surcharge-table-rows))
-(comment (db/delete-fuel-surcharge! {:id 5}))
-(comment (db/create-fuel-surcharge! {:market-id    3
-                                     :name         "Freight"
-                                     :source-url   "https://www.fedex.com/en-us/shipping/fuel-surcharge.html"
-                                     :company-name "FedEx"}))
+(comment (fuel-surcharge/get-fuel-surcharges))
+(comment (fuel-surcharge/delete-fuel-surcharge! 12))
+(comment (fuel-surcharge/insert-fuel-surcharge! {:market-id    3
+                                                 :name         "Freight"
+                                                 :source-url   "https://www.fedex.com/en-us/shipping/fuel-surcharge.html"
+                                                 :company-name "FedEx"}))
 
 (comment (db/insert-market-prices! {:market-prices
                                     [[1 (LocalDate/now) 1.091 "EUR"]]}))
@@ -44,22 +43,22 @@
             :price-is-rounded-to-cent true
             :surcharge-type           "percentage_of_line_haul"}))
 
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "UPS Ground")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "UPS Domestic Air")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "UPS International Air - Export")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "UPS International Air - Import")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "YRC TL")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "YRC LTL")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "YRC Jet")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "FedEx Ground")}))
-(comment (db/insert-fuel-surcharge-table-rows!
-           {:fuel-surcharge-table (fuel-surcharge-table  "FedEx Freight")}))
-(comment (db/delete-fuel-surcharge-table-rows! {:id 6}))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "UPS Ground")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "UPS Domestic Air")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "UPS International Air - Export")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "UPS International Air - Import")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "YRC TL")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "YRC LTL")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "YRC Jet")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "FedEx Ground")))
+(comment (fuel-surcharge/insert-fuel-surcharge-table-rows!
+           (fuel-surcharge-table  "FedEx Freight")))
+(comment (fuel-surcharge/delete-fuel-surcharge-table-rows! 6))

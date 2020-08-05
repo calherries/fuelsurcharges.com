@@ -43,12 +43,12 @@
   [:map
    {:belongs-to {:fuel-surcharge :fuel-surcharge-table/fuel-surcharge-id}
     :has-many   {:fuel-surcharge-table-row :fuel-surcharge-table/fuel-surcharge-table-rows}}
+   [:fuel-surcharge-table/id {:primary-key true :auto true} int?]
    [:fuel-surcharge-table/surcharge-type string?]
    [:fuel-surcharge-table/delay-periods int?]
    [:fuel-surcharge-table/fuel-surcharge-id int?]
    [:fuel-surcharge-table/update-interval int?]
    [:fuel-surcharge-table/update-interval-unit string?]
-   [:fuel-surcharge-table/id int?]
    [:fuel-surcharge-table/valid-at [:fn t/local-date?]]
    [:fuel-surcharge-table/delay-period-unit string?]
    [:fuel-surcharge-table/price-is-rounded-to-cent boolean?]
@@ -57,7 +57,7 @@
 (def fuel-surcharge-table-row
   [:map
    {:belongs-to {:fuel-surcharge-table :fuel-surcharge-table-row/fuel-surcharge-table-id}}
-   [:fuel-surcharge-table-row/id int?]
+   [:fuel-surcharge-table-row/id {:primary-key true :auto true}int?]
    [:fuel-surcharge-table-row/fuel-surcharge-table-id int?]
    [:fuel-surcharge-table-row/price double?]
    [:fuel-surcharge-table-row/surcharge-amount double?]
@@ -76,7 +76,7 @@
   (-> (q/select :*)
       (q/from table)
       (sql/format)
-      db/query))
+      db/query!))
 
 (defn strip-keys
   [value schema]
@@ -88,7 +88,7 @@
                (let [new-kw (if (and (keyword? k)
                                      (not (qualified-keyword? k)))
                               (keyword (name n) (name k))
-                              k) ]
+                              k)]
                  (assoc acc new-kw v)))
              {} m))
 

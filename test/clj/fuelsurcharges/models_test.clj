@@ -1,11 +1,11 @@
-(ns fuelsurcharges.db.models-test
+(ns fuelsurcharges.models-test
   (:require
    [clojure.spec.test.alpha :as stest]
    [fuelsurcharges.test-util :refer [check]]
    [clojure.test :refer :all]
    [gungnir.model :as gmodel]
    [malli.core :as m]
-   [fuelsurcharges.db.models :refer [register-models] :as models]))
+   [fuelsurcharges.models :refer [register-models] :as models]))
 
 (defn validate-model [model-name]
   (let [model (model-name @gmodel/models)]

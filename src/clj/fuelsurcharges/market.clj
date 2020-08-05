@@ -3,22 +3,25 @@
               [gungnir.database :as gd]
               [orchestra.core :refer [defn-spec]]
               [orchestra.spec.test :as st]
-              [gungnir.model :as model]
+              [gungnir.model :as gm]
               [malli.core :as m]
               [honeysql.core :as sql]
               [malli.util :as mu]
               [gungnir.record :refer [model table]]
               [fuelsurcharges.models :refer [register-models] :as models]
+              [fuelsurcharges.db.core :as db]
               [java-time :as t]))
 
-(comment (model/find :market))
-(comment (model/find :market-price))
+(comment (gm/find :market))
+(comment (gm/find :market-price))
 (comment (q/all! :market))
 (comment (st/instrument))
 (comment (models/strip-keys [:map
                              [:include-key int?]]
                             {:include-key 1
                              :strip-key   2}))
+
+;; Read
 
 (defn get-markets []
   (q/all! :market))
@@ -58,3 +61,17 @@
 (comment (get-markets))
 (comment (m/explain markets-list-schema (markets-list)))
 (comment (m/explain market-prices-list-schema (get-last-year-market-prices)))
+
+;; Create
+(defn insert-market! [m]
+  (db/insert! :market m))
+
+(defn insert-market-prices! [m]
+  (db/insert-many! :market-price m))
+
+;; Delete
+(defn delete-market! [id]
+  (db/delete! :market id))
+
+(defn delete-market-prices! [id]
+  (db/delete! :market-price :market-price/market-id id))

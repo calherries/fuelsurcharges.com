@@ -1,9 +1,9 @@
-(ns fuelsurcharges.price-data.oil-bulletin
+(ns fuelsurcharges.price-data.markets
   (:require [clj-http.client :as http-client]
             [clojure.java.io]
             [clojure.tools.logging :as log]
             [java-time :as t]
-            [fuelsurcharges.db.core :as db]
+            [fuelsurcharges.market :as market]
             [dk.ative.docjure.spreadsheet :as ss]
             [missionary.core :as m]))
 
@@ -90,11 +90,14 @@
 ;; convert rows into form needed by database
 (defn market-prices-insert [id prices currency]
   (for [{:keys [date price]} prices]
-    [id (t/local-date date) price currency]))
+    {:market-price/id         id
+     :market-price/price-date (t/local-date date)
+     :market-price/price      price
+     :markte-price/currency   currency}))
 
 (defn update-market-price! [{:keys [id data]}]
-  (db/delete-market-prices! {:market-id id})
-  (db/insert-market-prices! {:market-prices (market-prices-insert id data "USD")}))
+  (market/delete-market-prices! id)
+  (market/insert-market-prices! (market-prices-insert id data "USD")))
 
 (comment (update-market-price! {:id   3
                                 :data [{:date "2020-07-13" :price 2.195}]}))
@@ -106,22 +109,23 @@
 
 (comment (update-market-prices!))
 
-(comment (db/get-markets))
-(comment (->> (db/get-market-prices)
-              (filter (comp #{3} :market-id))))
-(comment (db/create-market! {:market-name "Automotive Gas Oil with Taxes (EU), European Commission Oil Bulletin"
-                             :source-name "The European Commission's Weekly Oil Bulletin"}))
-(comment (db/create-market! {:market-name "U.S. On Highway Diesel Fuel"
-                             :source-name "EIA"}))
-(comment (db/create-market! {:market-name "U.S. Gulf Coast Kerosene-Type Jet Fuel"
-                             :source-name "EIA"}))
-(comment (db/create-market! {:market-name "U.S. Regular Gasoline"
-                             :source-name "EIA"}))
-(comment (db/delete-market! {:id 3}))
-(comment (db/delete-market-prices! {:market-id 3}))
-(comment (db/delete-market-prices! {:market-id 4}))
-(comment (db/delete-market-prices! {:market-id 5}))
-(comment (db/insert-market-prices! {:market-prices (market-prices-insert 3 eia-price-data "USD")}))
-(comment (db/insert-market-prices! {:market-prices (market-prices-insert 4 eia-spot-price-data "USD")}))
-(comment (db/insert-market-prices! {:market-prices (market-prices-insert 5 eia-gas-price-data "USD")}))
-(comment (map (fn [[k v]] [k (count v)]) (group-by :market-id (db/get-market-prices))))
+(comment (market/get-markets))
+(comment (->> (market/get-market-prices)
+              (filter (comp #{3} :market-price/market-id))))
+(comment (market/insert-market! {:market/market-name "Automotive Gas Oil with Taxes (EU), European Commission Oil Bulletin"
+                                 :market/source-name "The European Commission's Weekly Oil Bulletin"}))
+(comment (market/insert-market! {:market/market-name "U.S. On Highway Diesel Fuel"
+                                 :market/source-name "EIA"}))
+(comment (market/insert-market! {:market/market-name "U.S. Gulf Coast Kerosene-Type Jet Fuel"
+                                 :market/source-name "EIA"}))
+(comment (market/insert-market! {:market/market-name "U.S. Regular Gasoline"
+                                 :market/source-name "EIA"}))
+(comment (market/insert-market! {:market/market-name "U.S. Test Gasoline"
+                                 :market/source-name "EIA"}))
+(comment (market/delete-market! 6))
+(comment (market/delete-market-prices! 3))
+(comment (market/delete-market-prices! 4))
+(comment (market/delete-market-prices! 5))
+(comment (market/insert-market-prices! (market-prices-insert 3 eia-price-data "USD")))
+(comment (market/insert-market-prices! (market-prices-insert 4 eia-spot-price-data "USD")))
+(comment (market/insert-market-prices! (market-prices-insert 5 eia-gas-price-data "USD")))
