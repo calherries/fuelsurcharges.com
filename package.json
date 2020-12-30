@@ -22,7 +22,7 @@
     "react-dom": "^16.13.0",
     "react-highlight.js": "1.0.7",
     "tailwindcss": "^1.4.6",
-    "vega": "^5.3.5",
+    "vega": "^5.17.3",
     "vega-embed": "^4.0.0",
     "vega-lite": "^3.2.1",
     "xregexp": "4.2.4",
